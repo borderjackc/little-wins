@@ -1,0 +1,30 @@
+rules_version = '2';
+// Little Wins: each couple's space lives at couples/{cid}. Only phones that joined with
+// the space's secret invite link (and so have a members/{uid} doc) can read or write it.
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isMember(cid) {
+      return request.auth != null
+        && exists(/databases/$(database)/documents/couples/$(cid)/members/$(request.auth.uid));
+    }
+
+    match /couples/{cid} {
+      allow create: if request.auth != null
+        && request.resource.data.keys().hasOnly(['secret', 'names', 'createdAt'])
+        && request.resource.data.secret is string
+        && request.resource.data.secret.size() >= 32;
+      allow get: if isMember(cid);
+      allow update: if isMember(cid) && request.resource.data.secret == resource.data.secret;
+
+      match /members/{uid} {
+        allow get: if request.auth != null && request.auth.uid == uid;
+        allow create: if request.auth != null && request.auth.uid == uid
+          && request.resource.data.secret == get(/databases/$(database)/documents/couples/$(cid)).data.secret;
+      }
+
+      match /{col}/{id} {
+        allow read, write: if col != 'members' && isMember(cid);
+      }
+    }
+  }
+}

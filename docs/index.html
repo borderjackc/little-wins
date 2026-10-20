@@ -295,6 +295,19 @@ nav .fab em{font-style:normal;margin-top:4px;color:var(--ink-2)}
 .sw{width:28px;height:28px;border-radius:50%;background:var(--c);box-shadow:inset 0 0 0 2px rgba(0,0,0,.08)}
 .sw[aria-pressed="true"]{box-shadow:0 0 0 2px var(--surface),0 0 0 4px var(--ink)}
 .sizes{display:flex;gap:4px;align-items:center}
+.tools{flex-direction:column;align-items:stretch}
+.tools-row{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.swatches{gap:6px}
+.sw-pick{position:relative;overflow:hidden;background:conic-gradient(#ff3b30,#ffcc00,#34c759,#5ac8fa,#007aff,#af52de,#ff3b30)}
+.sw-pick[style*="--c"]{background:radial-gradient(circle,var(--c) 45%,transparent 47%),conic-gradient(#ff3b30,#ffcc00,#34c759,#5ac8fa,#007aff,#af52de,#ff3b30)}
+.sw-pick input{position:absolute;inset:-8px;width:calc(100% + 16px);height:calc(100% + 16px);opacity:0;cursor:pointer;border:0;padding:0}
+.sw[style*="#FFFFFF"]{box-shadow:inset 0 0 0 1.5px var(--line)}
+.sz[data-a="eraser"]{color:var(--ink)}
+.zoom{display:flex;align-items:center;gap:4px}
+.zoom .sz{font-size:20px;font-weight:700}
+.zlvl{min-width:34px;text-align:center;font-weight:800;font-size:13px;color:var(--ink-2);font-variant-numeric:tabular-nums}
+.pad-hint{margin:-6px 0 0}
+.pad-wrap.zoomed{box-shadow:inset 0 0 0 2px var(--us)}
 .sz{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:var(--paper)}
 .sz i{display:block;border-radius:50%;background:var(--ink)}
 .sz[aria-pressed="true"]{box-shadow:inset 0 0 0 2px var(--us)}
@@ -499,8 +512,8 @@ const STICKERS=['💖','🙌','🔥','🥰','💪','🌟','🫶','😘','🎉','
 const QUICK=['💖','🙌','🔥'];
 const MOODS=[['😣','Rough'],['😕','Meh'],['😐','Okay'],['🙂','Good'],['😄','Great']];
 const EMOJIS=['🧘','💧','📚','🏃','🎸','🥗','🚶','📵','💞','🇯🇵','💊','🛏️','✍️','🪴','🧹','🍎'];
-const INKS=['#2B2238','#E0507A','#2A8AA3','#FFB547','#8456CC','#3E9B6B','#FF7A3D','#7FC8F8'];
-const SIZES=[3,7,14];
+const INKS=['#2B2238','#7A6F66','#E0507A','#FF9EB5','#FF7A3D','#FFB547','#F2D03B','#3E9B6B','#9CCC65','#2A8AA3','#7FC8F8','#8456CC','#C99BE8','#8B5A2B','#FFFFFF'];
+const SIZES=[1.5,3,7,14];
 const GOAL_EMOJIS=['🗻','✈️','🏖️','🥾','🏃','🚴','💰','🏠','💍','🎓','🍳','🌏','🐶','🎸','📚','🎉'];
 const JOKES=[["What do you call two birds in love?","Tweethearts."],["Why did the banana go out with the prune?","It couldn't find a date."],["What did the stamp say to the envelope?","I'm stuck on you."],["What did one plate say to the other?","Dinner's on me."],["Why don't eggs tell jokes?","They'd crack each other up."],["What do you call a fake noodle?","An impasta."],["Why did the scarecrow win an award?","He was outstanding in his field."],["What did the ocean say to the beach?","Nothing, it just waved."],["What do you call a bear with no teeth?","A gummy bear."],["Why are frogs so happy?","They eat whatever bugs them."],["What did the coffee report to the police?","A mugging."],["Why did the cookie go to the doctor?","It felt crummy."],["What do you call a sleeping dinosaur?","A dino-snore."],["What did one volcano say to the other?","I lava you."],["How do you organise a space party?","You planet."],["Why did the tomato blush?","It saw the salad dressing."],["What do you call cheese that isn't yours?","Nacho cheese."],["Why don't skeletons fight each other?","They don't have the guts."],["Why was the maths book sad?","It had too many problems."],["What do you call a pile of kittens?","A meowtain."],["What did the cat say to its crush?","You're purr-fect for me."],["Why did the bicycle fall over?","It was two-tired."],["What do you call a dog that does magic?","A labracadabrador."],["What did the left eye say to the right eye?","Between you and me, something smells."],["Why did the golfer bring two pairs of trousers?","In case he got a hole in one."],["What do you call a sad strawberry?","A blueberry."],["Why can't you trust atoms?","They make up everything."],["What did the avocado say to its partner?","We make a great pair. Guac on."]];
 const JOKE_RX=['😂','🙄','💖'];
@@ -529,7 +542,7 @@ function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}if(win
 
 const PAIR=(()=>{try{return JSON.parse(localStorage.getItem('littlewins-pair'))}catch(e){return null}})();
 let S=load()||fresh();if(PAIR&&PAIR.me)S.me=PAIR.me;S.goals=S.goals||[];
-const U={jokeIdx:fromKey(T()).getDate()%28,revealed:{},tab:'today',day:T(),sheet:null,form:null,strokes:[],ink:INKS[1],size:1,noteText:'',book:{range:'year',from:addDays(T(),-30),to:T(),state:'idle'},onb:PAIR&&PAIR.me?null:{st:PAIR?'who':'welcome'}};
+const U={jokeIdx:fromKey(T()).getDate()%28,revealed:{},tab:'today',day:T(),sheet:null,form:null,strokes:[],ink:INKS[2],size:2,erase:false,view:{z:1,ox:0,oy:0},noteText:'',book:{range:'year',from:addDays(T(),-30),to:T(),state:'idle'},onb:PAIR&&PAIR.me?null:{st:PAIR?'who':'welcome'}};
 
 /* ---------- model helpers ---------- */
 const P=()=>S.me==='j'?'a':'j';
@@ -573,6 +586,7 @@ const I={
   timeline:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"><rect x="4" y="3.5" width="16" height="7" rx="2.5"/><rect x="4" y="13.5" width="16" height="7" rx="2.5"/></svg>',
   pen:'<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20l4-1 11-11-3-3L5 16l-1 4z"/><path d="M14 6l3 3"/></svg>',
   habits:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="6" cy="7" r="2"/><circle cx="6" cy="17" r="2"/><path d="M11 7h9M11 17h9"/></svg>',
+  eraser:'<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M15 4l5 5-9 9H6l-3-3z"/><path d="M9 18h11"/></svg>',
   book:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"><path d="M4 5.5A2.5 2.5 0 016.5 3H20v15H6.5A2.5 2.5 0 004 20.5z"/><path d="M4 20.5A2.5 2.5 0 006.5 23H20v-5"/></svg>'
 };
 const usBadge='<span class="us-badge" aria-label="Both of you"><i></i><i></i></span>';
@@ -759,8 +773,10 @@ function sheetHTML(){
     else body=`<h2>A note for ${esc(nm(p))}</h2><p class="lede">Write, draw, or both. One note a day.</p>
       <textarea id="noteText" class="notetext" rows="2" maxlength="280" placeholder="Say something sweet…">${esc(U.noteText)}</textarea>
       <div class="pad-wrap"><canvas id="pad" aria-label="Drawing canvas"></canvas>${U.strokes.length?'':'<div class="ph">draw here ✏️</div>'}</div>
-      <div class="tools"><div class="swatches" role="group" aria-label="Colour">${INKS.map(c=>`<button class="sw" style="--c:${c}" data-a="ink" data-c="${c}" aria-pressed="${U.ink===c}" aria-label="Colour ${c}"></button>`).join('')}</div>
-      <div class="sizes" role="group" aria-label="Brush size">${SIZES.map((z,i)=>`<button class="sz" data-a="size" data-i="${i}" aria-pressed="${U.size===i}" aria-label="Brush ${['small','medium','large'][i]}"><i style="width:${z+3}px;height:${z+3}px"></i></button>`).join('')}<button class="sz" data-a="undo" aria-label="Undo" ${U.strokes.length?'':'disabled'} style="font-size:18px">↶</button></div></div>
+      <div class="tools"><div class="swatches" role="group" aria-label="Colour">${INKS.map(c=>`<button class="sw" style="--c:${c}" data-a="ink" data-c="${c}" aria-pressed="${!U.erase&&U.ink===c}" aria-label="Colour ${c}"></button>`).join('')}<label class="sw sw-pick" aria-label="Pick any colour" style="${U.custom?`--c:${U.custom}`:''}" aria-pressed="${!U.erase&&U.ink===U.custom}"><input type="color" id="inkPick" value="${U.custom||'#FF3B30'}"></label></div>
+      <div class="tools-row"><div class="sizes" role="group" aria-label="Brush size">${SIZES.map((z,i)=>`<button class="sz" data-a="size" data-i="${i}" aria-pressed="${U.size===i}" aria-label="Brush ${['fine','small','medium','large'][i]}"><i style="width:${Math.max(3,z+2)}px;height:${Math.max(3,z+2)}px"></i></button>`).join('')}<button class="sz" data-a="eraser" aria-pressed="${U.erase}" aria-label="Eraser">${I.eraser}</button><button class="sz" data-a="undo" aria-label="Undo" ${U.strokes.length?'':'disabled'} style="font-size:18px">↶</button></div>
+      <div class="zoom" role="group" aria-label="Zoom"><button class="sz" data-a="zoom" data-v="-1" aria-label="Zoom out">−</button><span class="zlvl" id="zlvl">${U.view.z.toFixed(U.view.z%1?1:0)}×</span><button class="sz" data-a="zoom" data-v="1" aria-label="Zoom in">+</button></div></div>
+      <p class="hint pad-hint">Zoom in for detail: pinch, or tap +. Move around with two fingers.</p>
       <button class="btn sun block" data-a="send">Send to ${esc(nm(p))}</button>`}
   if(s.kind==='habit'){const f=U.form;const isNew=!f.id;
     body=`<h2>${isNew?'New habit':'Edit habit'}</h2>
@@ -837,18 +853,33 @@ let banT;function banner(icon,title,msg){if(S.muted)return;const b=document.getE
 
 /* ---------- drawing pad ---------- */
 let padEl,ctx;
+function padSize(){const r=padEl.getBoundingClientRect();return[r.width,r.height]}
+function clampView(){const v=U.view,[w,h]=padSize();v.z=Math.min(4,Math.max(1,v.z));v.ox=Math.min(Math.max(0,v.ox),w-w/v.z);v.oy=Math.min(Math.max(0,v.oy),h-h/v.z)}
+function zoomAt(z,cx,cy){const v=U.view,px=cx/v.z+v.ox,py=cy/v.z+v.oy;v.z=Math.min(4,Math.max(1,z));v.ox=px-cx/v.z;v.oy=py-cy/v.z;clampView();redraw()}
 function initPad(){
   padEl=document.getElementById('pad');if(!padEl)return;
   const r=padEl.getBoundingClientRect(),dpr=window.devicePixelRatio||1;
-  padEl.width=r.width*dpr;padEl.height=r.height*dpr;ctx=padEl.getContext('2d');ctx.scale(dpr,dpr);redraw();
-  let cur=null;
-  const pt=e=>{const b=padEl.getBoundingClientRect();return[e.clientX-b.left,e.clientY-b.top]};
-  padEl.onpointerdown=e=>{padEl.setPointerCapture(e.pointerId);cur={c:U.ink,w:SIZES[U.size],p:[pt(e)]};U.strokes.push(cur);const ph=padEl.parentNode.querySelector('.ph');if(ph)ph.remove();redraw()};
-  padEl.onpointermove=e=>{if(!cur)return;cur.p.push(pt(e));redraw()};
-  padEl.onpointerup=padEl.onpointercancel=()=>{if(cur){cur=null;const u=document.querySelector('[data-a="undo"]');if(u)u.disabled=false}};
+  padEl.width=r.width*dpr;padEl.height=r.height*dpr;ctx=padEl.getContext('2d');clampView();redraw();
+  const pts=new Map();let cur=null,g=null;
+  const local=e=>{const b=padEl.getBoundingClientRect();return[e.clientX-b.left,e.clientY-b.top]};
+  const toPad=([x,y])=>[x/U.view.z+U.view.ox,y/U.view.z+U.view.oy];
+  const pair=()=>{const[a,b]=[...pts.values()];return{d:Math.hypot(a[0]-b[0],a[1]-b[1])||1,m:[(a[0]+b[0])/2,(a[1]+b[1])/2]}};
+  padEl.onpointerdown=e=>{padEl.setPointerCapture(e.pointerId);pts.set(e.pointerId,local(e));
+    if(pts.size===1){cur={c:U.ink,w:SIZES[U.size]/U.view.z,p:[toPad(local(e))]};if(U.erase)cur.e=1;U.strokes.push(cur);const ph=padEl.parentNode.querySelector('.ph');if(ph)ph.remove();redraw()}
+    else if(pts.size===2){if(cur){U.strokes.pop();cur=null}const q=pair(),v=U.view;g={d:q.d,px:q.m[0]/v.z+v.ox,py:q.m[1]/v.z+v.oy,z:v.z};redraw()}};
+  padEl.onpointermove=e=>{if(!pts.has(e.pointerId))return;pts.set(e.pointerId,local(e));
+    if(g&&pts.size>=2){const q=pair(),v=U.view;v.z=Math.min(4,Math.max(1,g.z*q.d/g.d));v.ox=g.px-q.m[0]/v.z;v.oy=g.py-q.m[1]/v.z;clampView();redraw()}
+    else if(cur){cur.p.push(toPad(local(e)));redraw()}};
+  padEl.onpointerup=padEl.onpointercancel=e=>{pts.delete(e.pointerId);if(pts.size<2)g=null;
+    if(!pts.size&&cur){cur=null;const u=document.querySelector('[data-a="undo"]');if(u)u.disabled=false}};
 }
-function redraw(){if(!ctx)return;ctx.clearRect(0,0,padEl.width,padEl.height);ctx.lineCap='round';ctx.lineJoin='round';
-  U.strokes.forEach(s=>{ctx.strokeStyle=s.c;ctx.lineWidth=s.w;ctx.beginPath();s.p.forEach(([x,y],i)=>i?ctx.lineTo(x,y):ctx.moveTo(x,y));if(s.p.length===1)ctx.lineTo(s.p[0][0]+.1,s.p[0][1]);ctx.stroke()})}
+function paint(c,z,ox,oy,dpr){c.setTransform(dpr*z,0,0,dpr*z,-ox*dpr*z,-oy*dpr*z);c.lineCap='round';c.lineJoin='round';
+  U.strokes.forEach(s=>{c.globalCompositeOperation=s.e?'destination-out':'source-over';c.strokeStyle=s.c;c.lineWidth=s.e?Math.max(s.w,10/z):s.w;c.beginPath();s.p.forEach(([x,y],i)=>i?c.lineTo(x,y):c.moveTo(x,y));if(s.p.length===1)c.lineTo(s.p[0][0]+.1,s.p[0][1]);c.stroke()});
+  c.globalCompositeOperation='source-over'}
+function redraw(){if(!ctx)return;ctx.setTransform(1,0,0,1,0,0);ctx.clearRect(0,0,padEl.width,padEl.height);const v=U.view;paint(ctx,v.z,v.ox,v.oy,window.devicePixelRatio||1);
+  const l=document.getElementById('zlvl');if(l)l.textContent=(v.z%1?v.z.toFixed(1):v.z)+'×';const w=padEl.parentNode;if(w)w.classList.toggle('zoomed',v.z>1)}
+// The sent drawing is always the whole page, whatever the zoom, rendered at 3x for detail.
+function exportDrawing(){const[w,h]=padSize(),k=3,c=document.createElement('canvas');c.width=Math.round(w*k);c.height=Math.round(h*k);paint(c.getContext('2d'),1,0,0,k);return c.toDataURL('image/png')}
 
 /* ---------- actions ---------- */
 function newCheckin(h,extra){const c=Object.assign({id:'c'+Date.now()+Math.floor(Math.random()*1e3),habitId:h.id,date:U.day,by:S.me,at:nowTime()},U.day!==T()?{backfill:true}:{},extra||{});S.checkins.push(c);return c}
@@ -857,6 +888,7 @@ function checkToast(h){const p=nm(P());toast(h.owner==='both'?'Done for both of 
 function openForm(h){U.formErr='';U.form=h?{id:h.id,name:h.name,emoji:h.emoji,owner:h.owner==='both'?'both':'me',type:h.type,unit:h.unit||'',freq:JSON.parse(JSON.stringify(h.freq)),vis:h.vis}:{name:'',emoji:'🪴',owner:'me',type:'yes',unit:'',freq:{kind:'daily'},vis:'shared'};if(!U.form.freq.n)U.form.freq.n=3;if(!U.form.freq.days)U.form.freq.days=[1,3,5];U.sheet={kind:'habit'};renderSheet()}
 function copyText(t,msg){try{navigator.clipboard.writeText(t).then(()=>toast(msg),()=>toast('Copy failed. Press and hold to copy.'))}catch(e){toast('Copy failed')}}
 function cleanFreq(f){return f.kind==='daily'?{kind:'daily'}:f.kind==='weekly'?{kind:'weekly',n:f.n}:{kind:'days',days:f.days.slice()}}
+function markTools(){document.querySelectorAll('.sw[data-c]').forEach(b=>b.setAttribute('aria-pressed',!U.erase&&b.dataset.c===U.ink));const pk=document.querySelector('.sw-pick');if(pk)pk.setAttribute('aria-pressed',!U.erase&&U.ink===U.custom);const er=document.querySelector('[data-a="eraser"]');if(er)er.setAttribute('aria-pressed',U.erase)}
 const A={
   tab:el=>{U.tab=el.dataset.tab;U.sheet=null;if(U.tab!=='book')U.book.state=U.book.state==='making'?'idle':U.book.state;render();$main.scrollTop=0},
   day:el=>{U.day=el.dataset.d;render()},
@@ -876,12 +908,14 @@ const A={
   viewnote:el=>{U.sheet={kind:'viewnote',n:el.dataset.n};renderSheet()},
   mood:()=>{U.sheet={kind:'mood'};renderSheet()},
   setmood:el=>{const d=T();S.moods[d]=S.moods[d]||{};const same=S.moods[d][S.me]===el.dataset.m;S.moods[d][S.me]=el.dataset.m;U.sheet=null;if(!same)toast(`${esc(nm(P()))} can see you're feeling ${moodLabel(el.dataset.m).toLowerCase()}`);render()},
-  note:()=>{U.sheet={kind:'note'};renderSheet()},
-  ink:el=>{U.ink=el.dataset.c;document.querySelectorAll('.sw').forEach(b=>b.setAttribute('aria-pressed',b.dataset.c===U.ink))},
+  note:()=>{U.view={z:1,ox:0,oy:0};U.sheet={kind:'note'};renderSheet()},
+  ink:el=>{U.ink=el.dataset.c;U.erase=false;markTools()},
+  eraser:()=>{U.erase=!U.erase;markTools()},
+  zoom:el=>{const[w,h]=padSize();zoomAt(U.view.z*(+el.dataset.v>0?1.5:1/1.5),w/2,h/2)},
   size:el=>{U.size=+el.dataset.i;document.querySelectorAll('.sz[data-i]').forEach(b=>b.setAttribute('aria-pressed',+b.dataset.i===U.size))},
   undo:el=>{U.strokes.pop();redraw();if(!U.strokes.length)el.disabled=true},
   send:()=>{const text=U.noteText.trim();if(!text&&!U.strokes.length){toast('Write or draw something first');return}
-    let drawing='';if(U.strokes.length){try{drawing=padEl.toDataURL('image/png')}catch(e){}}
+    let drawing='';if(U.strokes.length){try{drawing=exportDrawing()}catch(e){}}
     S.notes.push({id:'n'+Date.now(),date:T(),by:S.me,text,drawing,at:nowTime()});U.noteText='';U.strokes=[];U.sheet=null;toast(`Note sent to ${esc(nm(P()))}`);render()},
   close:()=>{U.sheet=null;renderSheet()},
   scrim:(el,e)=>{if(e.target===el){U.sheet=null;renderSheet()}},
@@ -948,6 +982,7 @@ const A={
 };
 document.addEventListener('click',e=>{const el=e.target.closest('[data-a]');if(!el||el.disabled)return;const f=A[el.dataset.a];if(f){if(el.dataset.a!=='scrim')e.stopPropagation();f(el,e)}});
 document.addEventListener('input',e=>{
+  if(e.target.id==='inkPick'){U.custom=U.ink=e.target.value;U.erase=false;e.target.parentNode.style.setProperty('--c',U.custom);markTools()}
   if(e.target.id==='noteText')U.noteText=e.target.value;
   if(e.target.id==='moodText'){const d=T();S.moodNotes[d]=S.moodNotes[d]||{};S.moodNotes[d][S.me]=e.target.value;save()}
   if(e.target.id==='nJ'||e.target.id==='nA'){const v=e.target.value.trim();if(v){S.names[e.target.id==='nJ'?'j':'a']=v;$main.innerHTML=U.tab==='today'?vToday():U.tab==='timeline'?vTimeline():U.tab==='habits'?vHabits():vBook();$nav.innerHTML=vNav();save()}}

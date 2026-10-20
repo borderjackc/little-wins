@@ -15,7 +15,7 @@ import {
 import { firebaseConfig } from './firebase-config.js';
 
 const PAIR_KEY = 'littlewins-pair', KNOWN_KEY = 'littlewins-known';
-const COLS = ['habits', 'checkins', 'reactions', 'notes', 'jokes'];
+const COLS = ['habits', 'goals', 'checkins', 'reactions', 'notes', 'jokes'];
 const emulator = new URLSearchParams(location.search).has('emulator');
 
 const fb = initializeApp(firebaseConfig);

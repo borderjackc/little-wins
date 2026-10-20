@@ -185,6 +185,27 @@ main>*{flex:none}
 
 /* Habits manager */
 .hlist{display:flex;flex-direction:column;gap:8px}
+.gcard{display:flex;align-items:center;gap:12px;background:var(--surface);border-radius:16px;padding:12px;text-align:left;width:100%}
+.gcard .hsub{display:block}
+.gcard.won .hemo{background:var(--yellow-soft)}
+.gbar{display:block;height:6px;border-radius:9px;background:var(--surface-2);margin-top:8px;overflow:hidden}
+.gbar i{display:block;height:100%;border-radius:9px;background:var(--us);transition:width .3s}
+.gcard.won .gbar i{background:var(--yellow)}
+.gbar.big{height:10px;margin-top:0}
+.ghead{display:flex;gap:12px;align-items:center}
+.ghead .hemo{width:48px;height:48px;font-size:26px;border-radius:14px}
+.gsteps{display:flex;flex-direction:column;gap:6px}
+.gstep{display:flex;align-items:center;gap:10px;background:var(--surface-2);border-radius:12px;padding:8px 10px}
+.gtick{width:28px;height:28px;border-radius:50%;border:2px solid var(--us);display:grid;place-items:center;font-weight:800;color:#fff;flex:none}
+.gstep.on .gtick{background:var(--us)}
+.gtxt{flex:1;min-width:0}
+.gstep.on .gtxt{color:var(--ink-2)}
+.gstep.on .gt{text-decoration:line-through}
+.gtxt small{display:block;font-size:12px;color:var(--ink-3)}
+.gdel{width:28px;height:28px;border-radius:50%;color:var(--ink-3);font-size:20px;flex:none}
+.gadd{display:flex;gap:8px;margin-top:4px}
+.gadd input{flex:1;min-width:0;min-height:44px;border-radius:12px;border:0;background:var(--surface-2);padding:8px 12px}
+.gdate{min-height:46px;border-radius:12px;border:0;background:var(--surface-2);padding:8px 12px;width:100%;font:inherit;color:var(--ink)}
 .hlist .empty{margin:0;padding:14px 16px}
 .hrow{display:flex;align-items:center;gap:12px;background:var(--surface);border-radius:16px;padding:10px 12px;box-shadow:var(--shadow);text-align:left;width:100%;min-height:62px}
 .chip{font-size:11px;font-weight:800;padding:4px 8px;border-radius:999px;background:var(--surface-2);color:var(--ink-2);white-space:nowrap;display:inline-flex;gap:4px;align-items:center}
@@ -454,6 +475,7 @@ const MOODS=[['😣','Rough'],['😕','Meh'],['😐','Okay'],['🙂','Good'],['�
 const EMOJIS=['🧘','💧','📚','🏃','🎸','🥗','🚶','📵','💞','🇯🇵','💊','🛏️','✍️','🪴','🧹','🍎'];
 const INKS=['#2B2238','#E0507A','#2A8AA3','#FFB547','#8456CC','#3E9B6B','#FF7A3D','#7FC8F8'];
 const SIZES=[3,7,14];
+const GOAL_EMOJIS=['🗻','✈️','🏖️','🥾','🏃','🚴','💰','🏠','💍','🎓','🍳','🌏','🐶','🎸','📚','🎉'];
 const JOKES=[["What do you call two birds in love?","Tweethearts."],["Why did the banana go out with the prune?","It couldn't find a date."],["What did the stamp say to the envelope?","I'm stuck on you."],["What did one plate say to the other?","Dinner's on me."],["Why don't eggs tell jokes?","They'd crack each other up."],["What do you call a fake noodle?","An impasta."],["Why did the scarecrow win an award?","He was outstanding in his field."],["What did the ocean say to the beach?","Nothing, it just waved."],["What do you call a bear with no teeth?","A gummy bear."],["Why are frogs so happy?","They eat whatever bugs them."],["What did the coffee report to the police?","A mugging."],["Why did the cookie go to the doctor?","It felt crummy."],["What do you call a sleeping dinosaur?","A dino-snore."],["What did one volcano say to the other?","I lava you."],["How do you organise a space party?","You planet."],["Why did the tomato blush?","It saw the salad dressing."],["What do you call cheese that isn't yours?","Nacho cheese."],["Why don't skeletons fight each other?","They don't have the guts."],["Why was the maths book sad?","It had too many problems."],["What do you call a pile of kittens?","A meowtain."],["What did the cat say to its crush?","You're purr-fect for me."],["Why did the bicycle fall over?","It was two-tired."],["What do you call a dog that does magic?","A labracadabrador."],["What did the left eye say to the right eye?","Between you and me, something smells."],["Why did the golfer bring two pairs of trousers?","In case he got a hole in one."],["What do you call a sad strawberry?","A blueberry."],["Why can't you trust atoms?","They make up everything."],["What did the avocado say to its partner?","We make a great pair. Guac on."]];
 const JOKE_RX=['😂','🙄','💖'];
 const WD=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
@@ -475,12 +497,12 @@ const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&
 
 /* ---------- state ---------- */
 // Everything shared lives in Firebase (see sync.js). This copy is a fast local cache.
-function fresh(names){return{v:3,names:names||{j:'',a:''},me:'j',muted:false,habits:[],checkins:[],reactions:[],notes:[],moods:{},moodNotes:{},jokes:[]}}
+function fresh(names){return{v:3,names:names||{j:'',a:''},me:'j',muted:false,habits:[],goals:[],checkins:[],reactions:[],notes:[],moods:{},moodNotes:{},jokes:[]}}
 function load(){try{const s=JSON.parse(localStorage.getItem(KEY));return s&&s.v===3?s:null}catch(e){return null}}
 function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}if(window.LWSync)LWSync.changed()}
 
 const PAIR=(()=>{try{return JSON.parse(localStorage.getItem('littlewins-pair'))}catch(e){return null}})();
-let S=load()||fresh();if(PAIR&&PAIR.me)S.me=PAIR.me;
+let S=load()||fresh();if(PAIR&&PAIR.me)S.me=PAIR.me;S.goals=S.goals||[];
 const U={jokeIdx:fromKey(T()).getDate()%28,revealed:{},tab:'today',day:T(),sheet:null,form:null,strokes:[],ink:INKS[1],size:1,noteText:'',book:{range:'year',from:addDays(T(),-30),to:T(),state:'idle'},onb:PAIR&&PAIR.me?null:{st:PAIR?'who':'welcome'}};
 
 /* ---------- model helpers ---------- */
@@ -605,12 +627,15 @@ function vToday(){
     <textarea id="moodText" maxlength="200" rows="2" placeholder="Add a few words, e.g. nervous about my exam" aria-label="What's on your mind">${esc(myMoodText)}</textarea>
     ${pMood?`<div class="pmood" style="--pc:${pcol(p)}">${av(p)}<span><b>${esc(nm(p))}</b> is feeling ${moodLabel(pMood).toLowerCase()} ${pMood}${pMoodText?`<br><span class="muted">“${esc(pMoodText)}”</span>`:''}</span></div>`:`<div class="pmood muted">${av(p)}<span>${esc(nm(p))} hasn't shared a mood yet today.</span></div>`}
     </div></section>`;
+  // 3b. Shared goals
+  const liveGoals=S.goals.filter(g=>!g.done);
+  if(isToday)out+=`<section class="sec"><div class="sec-h"><h2>Our goals</h2>${liveGoals.length?'<span>dream big, step by step</span>':''}</div>${liveGoals.length?`<div class="hlist">${liveGoals.slice(0,3).map(goalCard).join('')}</div>`:`<div class="caught"><span>Plan something together, like trekking Mount Fuji.</span><button class="btn-open" data-a="newgoal">+ Goal</button></div>`}</section>`;
   // 4. Streaks
   const streakHabs=S.habits.filter(x=>!x.archived&&(x.owner==='both'||x.owner===me)).filter(x=>streak(x).n>=2).sort((a,b)=>(a.owner==='both'?0:1)-(b.owner==='both'?0:1)||streak(b).n-streak(a).n);
   if(isToday)out+=`<section class="sec"><div class="sec-h"><h2>Our streaks</h2><span>resets gently</span></div>${streakHabs.length?`<div class="streaks">${streakHabs.map(streakCard).join('')}</div>`:`<div class="caught">Streaks appear here from your second day in a row.</div>`}</section>`;
   // 5. Our goals, 6. My goals
-  if(ours.length)out+=`<section class="sec"><div class="sec-h"><h2>Our goals</h2><span>one tick counts for both</span></div><div class="group">${ours.map(x=>habRow(x,d)).join('')}</div></section>`;
-  out+=`<section class="sec"><div class="sec-h"><h2>My goals</h2><button class="muted" data-a="tab" data-tab="habits" style="font-weight:800">Edit</button></div>${mine.length?'<div class="group">'+mine.map(x=>habRow(x,d)).join('')+'</div>':`<div class="caught">Nothing planned for ${isToday?'today':'this day'}. Enjoy the breather.</div>`}</section>`;
+  if(ours.length)out+=`<section class="sec"><div class="sec-h"><h2>Together today</h2><span>one tick counts for both</span></div><div class="group">${ours.map(x=>habRow(x,d)).join('')}</div></section>`;
+  out+=`<section class="sec"><div class="sec-h"><h2>My habits</h2><button class="muted" data-a="tab" data-tab="habits" style="font-weight:800">Edit</button></div>${mine.length?'<div class="group">'+mine.map(x=>habRow(x,d)).join('')+'</div>':`<div class="caught">Nothing planned for ${isToday?'today':'this day'}. Enjoy the breather.</div>`}</section>`;
   if(jokeSent)out+=jokeSection(d);
   return out;
 }
@@ -619,6 +644,7 @@ function dayEvents(d,viewer){
   S.checkins.filter(c=>c.date===d&&canSee(viewer,c)).forEach(c=>evs.push({at:c.at,kind:'c',c}));
   S.notes.filter(n=>n.date===d).forEach(n=>evs.push({at:n.at,kind:'n',n}));
   (S.jokes||[]).filter(j=>j.date===d).forEach(j=>evs.push({at:j.at,kind:'k',j}));
+  (S.goals||[]).forEach(g=>{(g.steps||[]).filter(x=>x.done===d).forEach(x=>evs.push({at:x.at||'',kind:'g',g,x}));if(g.done===d)evs.push({at:g.doneAt||'',kind:'g',g})});
   return evs.sort((a,b)=>a.at<b.at?1:-1);
 }
 function stks(t){const r=rxOf(t);return r.length?`<span class="stks" aria-label="Reactions">${r.map(x=>`<span title="${esc(nm(x.by))}">${x.s}</span>`).join('')}</span>`:''}
@@ -628,15 +654,17 @@ function pageHTML(d,viewer,opts={}){
     const name=joint?'Us':who(e.c.by);
     return `<div class="ev" style="--pc:${pcol(joint?'both':e.c.by)}"><span class="dot"></span><span class="t"><b>${esc(name)}</b> · ${esc(h.name)}${h.type==='count'?` · ${e.c.count} ${esc(h.unit||'')}`:''}${h.vis==='private'&&!joint?' '+I.lock:''}</span>${stks('c:'+e.c.id)}<span class="when">${e.c.at}</span></div>`}).join('');
   const jrows=evs.filter(e=>e.kind==='k').map(e=>`<div class="ev" style="--pc:${pcol(e.j.by)}"><span class="dot"></span><span class="t"><b>${esc(who(e.j.by))}</b> sent a joke: ${esc(e.j.q)} <i>${esc(e.j.a)}</i></span>${stks('k:'+e.j.id)}<span class="when">${e.j.at}</span></div>`).join('');
+  const grows=evs.filter(e=>e.kind==='g').map(e=>`<div class="ev" style="--pc:var(--us)"><span class="dot"></span><span class="t">${e.x?`<b>${esc(who(e.x.by))}</b> ticked off “${esc(e.x.text)}” for ${esc(e.g.name)}`:`<b>Us</b> · achieved ${esc(e.g.name)} ${e.g.emoji} 🎉`}</span><span class="when">${e.x?e.x.at||'':e.g.doneAt||''}</span></div>`).join('');
   const notes=evs.filter(e=>e.kind==='n').map(e=>`<div class="paper" style="--pc:${pcol(e.n.by)}"><span class="from">From ${esc(who(e.n.by)==='You'?'you':nm(e.n.by))} · ${e.n.at}</span>${e.n.text?`<div class="hand">${esc(e.n.text)}</div>`:''}${e.n.drawing?`<img src="${e.n.drawing}" alt="Drawing from ${esc(nm(e.n.by))}">`:''}${rxOf('n:'+e.n.id).length?`<div class="foot">${stks('n:'+e.n.id)}</div>`:''}</div>`).join('');
   const mn=S.moodNotes[d]||{};const mnl=['j','a'].filter(u=>mn[u]&&m[u]).map(u=>`<p class="mnote" style="--pc:${pcol(u)}"><b>${esc(who(u))}</b> felt ${moodLabel(m[u]).toLowerCase()}: “${esc(mn[u])}”</p>`).join('');
-  return `<article class="page"><div class="page-h"><div><h3>${dayLabel(d)}</h3><div class="date">${shortDate(d)}</div></div><div class="pm">${['j','a'].filter(u=>m[u]).map(u=>`<span style="--pc:${pcol(u)}" title="${esc(nm(u))}: ${moodLabel(m[u])}">${m[u]}</span>`).join('')}</div></div>${mnl}${rows}${jrows}${notes}</article>`;
+  return `<article class="page"><div class="page-h"><div><h3>${dayLabel(d)}</h3><div class="date">${shortDate(d)}</div></div><div class="pm">${['j','a'].filter(u=>m[u]).map(u=>`<span style="--pc:${pcol(u)}" title="${esc(nm(u))}: ${moodLabel(m[u])}">${m[u]}</span>`).join('')}</div></div>${mnl}${rows}${grows}${jrows}${notes}</article>`;
 }
 function timelineDays(viewer){
   const set=new Set();
   S.checkins.forEach(c=>{if(canSee(viewer,c))set.add(c.date)});
   S.notes.forEach(n=>set.add(n.date));
   (S.jokes||[]).forEach(j=>set.add(j.date));
+  (S.goals||[]).forEach(g=>{(g.steps||[]).forEach(x=>{if(x.done)set.add(x.done)});if(g.done)set.add(g.done)});
   Object.keys(S.moods).forEach(d=>{if(Object.keys(S.moods[d]).length)set.add(d)});
   return [...set].sort().reverse();
 }
@@ -645,6 +673,17 @@ function vTimeline(){
   return `<header class="top"><div><div class="eyebrow">${esc(nm('j'))} & ${esc(nm('a'))}</div><h1>Our timeline</h1><p class="tl-intro">Every little win since ${first?shortDate(first):'today'}. Only days with something in them appear here.</p></div></header>
   ${days.map(d=>pageHTML(d,S.me)).join('')}`;
 }
+/* ---------- shared goals ---------- */
+const goal=id=>S.goals.find(g=>g.id===id);
+const gprog=g=>{const n=(g.steps||[]).length,k=(g.steps||[]).filter(x=>x.done).length;return{n,k,pct:g.done?100:n?Math.round(k/n*100):0}};
+function gwhen(g){if(g.done)return`Achieved ${shortDate(g.done)}`;if(!g.target)return'No date yet';const days=Math.round((fromKey(g.target)-fromKey(T()))/864e5);
+  const yr=fromKey(g.target).getFullYear()!==fromKey(T()).getFullYear()?' '+fromKey(g.target).getFullYear():'';
+  return`By ${shortDate(g.target)}${yr}`+(days<0?' · date passed':days===0?' · today':days<=60?` · ${days} day${days===1?'':'s'} to go`:'')}
+function goalCard(g){const pr=gprog(g);
+  return `<button class="gcard${g.done?' won':''}" data-a="goal" data-g="${g.id}"><span class="hemo" style="--pc:var(--us)">${g.emoji}</span><span class="hmeta"><span class="hname">${esc(g.name)}</span><span class="hsub">${gwhen(g)}${pr.n&&!g.done?` · ${pr.k} of ${pr.n} steps`:''}</span><span class="gbar"><i style="width:${pr.pct}%"></i></span></span><span class="chev">›</span></button>`}
+function goalsList(){const live=S.goals.filter(g=>!g.done),won=S.goals.filter(g=>g.done);
+  return (live.length?`<div class="hlist">${live.map(goalCard).join('')}</div>`:`<div class="caught">No shared goals yet. Add a dream you're working towards together, like trekking Mount Fuji.</div>`)
+    +(won.length?`<div class="sec-h" style="margin-top:6px"><h2 style="font-size:16px">Achieved 🎉</h2></div><div class="hlist">${won.map(goalCard).join('')}</div>`:'')}
 function hrow(h,editable){
   const chip=h.owner==='both'?`<span class="chip">${usBadge} Joint</span>`:h.vis==='private'?`<span class="chip priv">${I.lock} Private</span>`:'<span class="chip">Shared</span>';
   const inner=`<span class="hemo" style="--pc:${pcol(h.owner)}">${h.emoji}</span><span class="hmeta"><span class="hname">${esc(h.name)}</span><span class="hsub">${fmtFreq(h.freq)}${h.type==='count'?' · counts '+esc(h.unit||''):''}</span></span>${chip}${editable?'<span class="chev">›</span>':''}`;
@@ -654,8 +693,8 @@ function vHabits(){
   const me=S.me,p=P();const live=S.habits.filter(h=>!h.archived);
   const ours=live.filter(h=>h.owner==='both'),mine=live.filter(h=>h.owner===me),theirs=live.filter(h=>h.owner===p&&h.vis==='shared');
   const arch=S.habits.filter(h=>h.archived&&(h.owner===me||h.owner==='both'));
-  return `<header class="top"><div><div class="eyebrow">What you're working on</div><h1>Habits</h1></div><button class="btn sun" data-a="new">+ New</button></header>
-  <section class="sec"><div class="sec-h"><h2>Ours</h2><span>either of you can tick these</span></div><div class="hlist group">${ours.map(h=>hrow(h,true)).join('')||'<p class="muted empty">No joint habits yet.</p>'}</div></section>
+  return `<header class="top"><div><div class="eyebrow">What you're working on</div><h1>Habits</h1></div><button class="btn sun" data-a="new">+ Habit</button></header>
+  <section class="sec"><div class="sec-h"><h2>Our goals</h2><button class="btn-open" data-a="newgoal">+ Goal</button></div>${goalsList()}${ours.length?`<div class="hlist group">${ours.map(h=>hrow(h,true)).join('')}</div>`:''}</section>
   <section class="sec"><div class="sec-h"><h2>Mine</h2><span>private ones stay hidden from ${esc(nm(p))}</span></div><div class="hlist group">${mine.map(h=>hrow(h,true)).join('')}</div></section>
   <section class="sec"><div class="sec-h"><h2>${esc(nm(p))}'s</h2><span>shared with you</span></div><div class="hlist group">${theirs.map(h=>hrow(h,false)).join('')||`<p class="muted empty">${esc(nm(p))} hasn't shared any habits yet.</p>`}</div></section>
   ${arch.length?`<section class="sec"><div class="sec-h"><h2>Archived</h2><span>history stays on the timeline</span></div><div class="hlist group">${arch.map(h=>`<div class="hrow"><span class="hemo" style="--pc:${pcol(h.owner)}">${h.emoji}</span><span class="hmeta"><span class="hname">${esc(h.name)}</span></span><button class="btn ghost" data-a="restore" data-h="${h.id}">Restore</button></div>`).join('')}</div></section>`:''}`;
@@ -702,7 +741,6 @@ function sheetHTML(){
     <div class="field"><label for="fName">Name</label><input type="text" id="fName" value="${esc(f.name)}" placeholder="e.g. Stretch for 10 minutes" maxlength="40"></div>
     ${U.formErr?`<p class="err">${U.formErr}</p>`:''}
     <div class="field"><span class="lbl">Icon</span><div class="emojis">${EMOJIS.map(e=>`<button data-a="f" data-k="emoji" data-v="${e}" aria-pressed="${f.emoji===e}">${e}</button>`).join('')}</div></div>
-    ${isNew?`<div class="field"><span class="lbl">Whose habit</span><div class="seg"><button data-a="f" data-k="owner" data-v="me" aria-pressed="${f.owner==='me'}">Just me</button><button data-a="f" data-k="owner" data-v="both" aria-pressed="${f.owner==='both'}">Both of us</button></div>${f.owner==='both'?`<p class="hint">Joint habits are always shared. When either of you checks in, it's done for both.</p>`:''}</div>`:''}
     <div class="field"><span class="lbl">How you log it</span><div class="seg"><button data-a="f" data-k="type" data-v="yes" aria-pressed="${f.type==='yes'}">Tick it off</button><button data-a="f" data-k="type" data-v="count" aria-pressed="${f.type==='count'}">Count it</button></div>${f.type==='count'?`<input type="text" id="fUnit" value="${esc(f.unit)}" placeholder="What are you counting? e.g. glasses" style="min-height:46px;border-radius:14px;border:1.5px solid var(--line);background:var(--paper);padding:10px 12px">`:''}</div>
     <div class="field"><span class="lbl">How often</span><div class="seg"><button data-a="fq" data-v="daily" aria-pressed="${f.freq.kind==='daily'}">Every day</button><button data-a="fq" data-v="weekly" aria-pressed="${f.freq.kind==='weekly'}">Times a week</button><button data-a="fq" data-v="days" aria-pressed="${f.freq.kind==='days'}">Certain days</button></div>
       ${f.freq.kind==='weekly'?`<div class="inline"><button class="sbtn" data-a="fn" data-v="-1" aria-label="Fewer">−</button><b style="font-family:var(--f-display);font-size:20px">${f.freq.n}× a week</b><button class="sbtn" data-a="fn" data-v="1" aria-label="More">+</button></div>`:''}
@@ -711,6 +749,23 @@ function sheetHTML(){
     ${f.owner!=='both'?`<div class="field"><span class="lbl">Who can see it</span><div class="seg"><button data-a="f" data-k="vis" data-v="shared" aria-pressed="${f.vis==='shared'}">Shared with ${esc(nm(p))}</button><button data-a="f" data-k="vis" data-v="private" aria-pressed="${f.vis==='private'}">${I.lock} Private</button></div><p class="hint">${f.vis==='private'?`${esc(nm(p))} won't know this habit exists. You can share it later.`:`${esc(nm(p))} sees your check-ins and can cheer you on.`}</p></div>`:''}
     <button class="btn block" data-a="savehabit">${isNew?'Add habit':'Save changes'}</button>
     ${!isNew?`<button class="btn ghost block" data-a="archive">Archive habit</button>`:''}`}
+  if(s.kind==='newgoal'){const f=U.gform;
+    body=`<h2>New shared goal</h2><p class="lede">Something you're working towards together. You can both tick off steps.</p>
+    <div class="field"><label for="gName">Goal</label><input type="text" id="gName" value="${esc(f.name)}" placeholder="e.g. Trek Mount Fuji" maxlength="50"></div>
+    ${U.formErr?`<p class="err">${U.formErr}</p>`:''}
+    <div class="field"><span class="lbl">Icon</span><div class="emojis">${GOAL_EMOJIS.map(e=>`<button data-a="gf" data-v="${e}" aria-pressed="${f.emoji===e}">${e}</button>`).join('')}</div></div>
+    <div class="field"><label for="gDate">Target date (optional)</label><input type="date" id="gDate" value="${f.target||''}" min="${T()}" class="gdate"></div>
+    <div class="field"><label for="gSteps">First steps (optional, one per line)</label><textarea id="gSteps" rows="4" maxlength="600" placeholder="Book flights&#10;Buy hiking boots&#10;Practice hike: Lion Rock">${esc(f.steps||'')}</textarea></div>
+    <button class="btn block" data-a="savegoal">Add goal</button>`}
+  if(s.kind==='goal'){const g=goal(s.g);if(!g){U.sheet=null;return''}const pr=gprog(g);
+    body=`<div class="ghead"><span class="hemo" style="--pc:var(--us)">${g.emoji}</span><div><h2>${esc(g.name)}</h2><p class="lede" style="margin:2px 0 0">${gwhen(g)}</p></div></div>
+    <div class="gbar big"><i style="width:${pr.pct}%"></i></div><p class="hint" style="margin-top:-8px">${g.done?'You did it together.':pr.n?`${pr.k} of ${pr.n} steps done`:'Add the steps that get you there.'}</p>
+    <div class="field"><span class="lbl">Steps</span><div class="gsteps">${(g.steps||[]).map(x=>`<div class="gstep${x.done?' on':''}"><button class="gtick" role="checkbox" aria-checked="${!!x.done}" data-a="gstep" data-x="${x.id}" aria-label="${esc(x.text)}">${x.done?'✓':''}</button><span class="gtxt"><span class="gt">${esc(x.text)}</span>${x.done?`<small>${esc(who(x.by))} · ${shortDate(x.done)}</small>`:''}</span><button class="gdel" data-a="gdel" data-x="${x.id}" aria-label="Remove step">×</button></div>`).join('')}</div>
+      ${g.done?'':`<div class="gadd"><input type="text" id="gNew" maxlength="80" placeholder="Add a step"><button class="btn ghost" data-a="gaddstep">Add</button></div>`}</div>
+    ${g.done?'':`<div class="field"><label for="gDate2">Target date</label><input type="date" id="gDate2" value="${g.target||''}" class="gdate"></div>`}
+    ${g.done?`<button class="btn ghost block" data-a="gundo">Not done yet</button>`:`<button class="btn sun block" data-a="gwin">We did it! 🎉</button>`}
+    <button class="btn ghost block" data-a="gdelete">Delete goal</button>`}
+  if(s.kind==='gdelete'){const g=goal(s.g);body=`<h2>Delete ${esc(g.name)}?</h2><p class="lede">It disappears for both of you, including its steps on the timeline.</p><button class="btn block" data-a="gdelete2">Delete</button><button class="btn ghost block" data-a="goal" data-g="${g.id}">Keep it</button>`}
   if(s.kind==='reveal'){const h=hab(s.h);const n=S.checkins.filter(c=>c.habitId===h.id).length;
     body=`<h2>Share ${esc(h.name)} with ${esc(nm(p))}?</h2><p class="lede">${esc(nm(p))} will start seeing this habit. Choose how much of its past to show.</p>
     <button class="choice" data-a="reveal" data-v="all"><b>Share full history</b><span>${n?`All ${n} past check-ins appear on your timeline together.`:'Nothing logged yet, so this is the same as from now on.'}</span></button>
@@ -827,6 +882,21 @@ const A={
     if(navigator.share)navigator.share({title:'Little Wins',text}).catch(()=>{});else copyText(link,'Invite link copied')},
   copylink:()=>copyText(U.onb&&U.onb.link||'','Invite link copied'),
   new:()=>openForm(null),
+  newgoal:()=>{U.formErr='';U.gform={name:'',emoji:'🗻',target:'',steps:''};U.sheet={kind:'newgoal'};renderSheet()},
+  gf:el=>{const f=U.gform;f.name=document.getElementById('gName').value;f.target=document.getElementById('gDate').value;f.steps=document.getElementById('gSteps').value;f.emoji=el.dataset.v;renderSheet()},
+  savegoal:()=>{const name=document.getElementById('gName').value.trim(),target=document.getElementById('gDate').value,lines=document.getElementById('gSteps').value.split('\n').map(x=>x.trim()).filter(Boolean);
+    if(!name){U.gform.target=target;U.gform.steps=lines.join('\n');U.formErr='Give your goal a name.';renderSheet();return}
+    const id='g'+Date.now();S.goals.push({id,name,emoji:U.gform.emoji,target:target||'',by:S.me,created:T(),done:null,steps:lines.slice(0,30).map((text,i)=>({id:'s'+Date.now()+i,text,done:null}))});
+    U.sheet={kind:'goal',g:id};toast(`Goal added. ${esc(nm(P()))} can see it too.`);render()},
+  goal:el=>{U.sheet={kind:'goal',g:el.dataset.g};renderSheet()},
+  gstep:el=>{const g=goal(U.sheet.g),x=g.steps.find(y=>y.id===el.dataset.x);if(x.done){x.done=null;delete x.by;delete x.at}else{x.done=T();x.by=S.me;x.at=nowTime()}
+    const pr=gprog(g);if(x.done&&pr.n&&pr.k===pr.n&&!g.done)toast('Every step done! Tap “We did it” when it happens 🎉');render()},
+  gaddstep:()=>{const t=document.getElementById('gNew').value.trim();if(!t)return;const g=goal(U.sheet.g);g.steps=g.steps||[];g.steps.push({id:'s'+Date.now(),text:t,done:null});render();const i=document.getElementById('gNew');if(i)i.focus()},
+  gdel:el=>{const g=goal(U.sheet.g);g.steps=g.steps.filter(y=>y.id!==el.dataset.x);render()},
+  gwin:()=>{const g=goal(U.sheet.g);g.done=T();g.doneAt=nowTime();g.doneBy=S.me;toast(`🎉 ${esc(g.name)}! Added to your timeline.`);render()},
+  gundo:()=>{const g=goal(U.sheet.g);g.done=null;delete g.doneAt;delete g.doneBy;render()},
+  gdelete:()=>{U.sheet={kind:'gdelete',g:U.sheet.g};renderSheet()},
+  gdelete2:()=>{S.goals=S.goals.filter(g=>g.id!==U.sheet.g);U.sheet=null;toast('Goal deleted');render()},
   edit:el=>openForm(hab(el.dataset.h)),
   f:el=>{U.form[el.dataset.k]=el.dataset.v;renderSheet()},
   fq:el=>{U.form.freq.kind=el.dataset.v;renderSheet()},
@@ -856,7 +926,8 @@ document.addEventListener('input',e=>{
   if(e.target.id==='moodText'){const d=T();S.moodNotes[d]=S.moodNotes[d]||{};S.moodNotes[d][S.me]=e.target.value;save()}
   if(e.target.id==='nJ'||e.target.id==='nA'){const v=e.target.value.trim();if(v){S.names[e.target.id==='nJ'?'j':'a']=v;$main.innerHTML=U.tab==='today'?vToday():U.tab==='timeline'?vTimeline():U.tab==='habits'?vHabits():vBook();$nav.innerHTML=vNav();save()}}
 });
-document.addEventListener('change',e=>{if(e.target.id==='bFrom'){U.book.from=e.target.value;render()}if(e.target.id==='bTo'){U.book.to=e.target.value;render()}});
+document.addEventListener('keydown',e=>{if(e.target.id==='gNew'&&e.key==='Enter'){e.preventDefault();A.gaddstep()}});
+document.addEventListener('change',e=>{if(e.target.id==='gDate2'&&U.sheet&&U.sheet.kind==='goal'){const g=goal(U.sheet.g);g.target=e.target.value||'';render()}if(e.target.id==='bFrom'){U.book.from=e.target.value;render()}if(e.target.id==='bTo'){U.book.to=e.target.value;render()}});
 
 /* timelineDays('both-preview') for the book: union of what both partners can see, minus private */
 const _td=timelineDays;
@@ -873,6 +944,7 @@ window.LWApp={
     items.filter(x=>x.item.by===p).slice(-1).forEach(({col,item})=>{
       if(col==='checkins'){const h=hab(item.habitId);if(h&&canSee(me,item))banner(h.emoji,`${esc(nm(p))} just checked in: ${esc(h.name)}`,'Tap to cheer them on')}
       if(col==='notes')banner('💌',`${esc(nm(p))} sent you a note`,esc((item.text||'A little drawing').slice(0,60)))
+      if(col==='goals')banner(item.emoji,`${esc(nm(p))} added a goal: ${esc(item.name)}`,'Open it to add steps together')
       if(col==='jokes')banner('😂',`${esc(nm(p))} sent you a joke`,esc(item.q))
       if(col==='reactions')banner(item.s,`${esc(nm(p))} sent you ${item.s}`,'Your cheer squad of one')
     })}

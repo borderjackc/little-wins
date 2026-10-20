@@ -40,7 +40,7 @@ html,body{margin:0;overscroll-behavior:none}
 /* Pin the page to the whole screen: in a Home Screen app, height:100% can stop short of the bottom edge. */
 body{position:fixed;inset:0;overflow:hidden}
 .app{height:100%;padding-top:env(safe-area-inset-top,0px)}
-nav{padding-bottom:max(4px,calc(env(safe-area-inset-bottom,0px) - 12px))}
+nav{padding-bottom:max(2px,calc(env(safe-area-inset-bottom,0px) - 22px))}
 .sheet{padding-bottom:calc(24px + env(safe-area-inset-bottom,0px))}
 .onb{padding-top:calc(28px + env(safe-area-inset-top,0px));padding-bottom:calc(28px + env(safe-area-inset-bottom,0px))}
 #toast{bottom:calc(86px + env(safe-area-inset-bottom,0px))}
@@ -48,6 +48,9 @@ nav{padding-bottom:max(4px,calc(env(safe-area-inset-bottom,0px) - 12px))}
 """
 
 SW = """<script>
+// iOS Home Screen apps can stay scrolled up after the keyboard closes, leaving a gap at the bottom.
+addEventListener('focusout', () => setTimeout(() => { if (!document.activeElement || document.activeElement === document.body) scrollTo(0, 0); }, 50));
+
 if ('serviceWorker' in navigator) {
   addEventListener('load', () => navigator.serviceWorker.register('sw.js'));
 }

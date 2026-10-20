@@ -25,7 +25,7 @@ HEAD = """<!doctype html>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Little Wins">
 <meta name="theme-color" content="#EEF7FD" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
@@ -35,24 +35,11 @@ HEAD = """<!doctype html>
 """
 
 # Full-screen on iPhone: keep content clear of the notch, status bar and home indicator.
-SAFE_AREA = """<script>
-// In a Home Screen app iOS can report a viewport shorter than the screen (it still
-// leaves room for Safari's toolbar), which leaves an empty strip under the tab bar.
-// The app fills the whole screen there, so size it to the screen.
-(function () {
-  var standalone = navigator.standalone || matchMedia('(display-mode: standalone)').matches;
-  if (!standalone) return;
-  function fit() {
-    var h = matchMedia('(orientation: portrait)').matches ? Math.max(screen.width, screen.height) : Math.min(screen.width, screen.height);
-    document.documentElement.style.setProperty('--app-h', Math.max(h, innerHeight) + 'px');
-  }
-  fit(); addEventListener('resize', fit); addEventListener('orientationchange', fit);
-})();
-</script>
-<style>
+SAFE_AREA = """<style>
 html,body{margin:0;overscroll-behavior:none}
-/* Pin the page to the whole screen: in a Home Screen app, height:100% can stop short of the bottom edge. */
-body{position:fixed;top:0;left:0;right:0;height:var(--app-h,100%);overflow:hidden}
+/* Pin the page to the screen. The status bar style is 'default' (not see-through): with a
+   see-through one, iOS Home Screen apps can size the page short, leaving a strip at the bottom. */
+body{position:fixed;inset:0;overflow:hidden}
 .app{height:100%;padding-top:env(safe-area-inset-top,0px)}
 nav{padding-bottom:max(2px,calc(env(safe-area-inset-bottom,0px) - 22px))}
 .sheet{padding-bottom:calc(24px + env(safe-area-inset-bottom,0px))}

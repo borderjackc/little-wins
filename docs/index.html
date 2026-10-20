@@ -300,6 +300,11 @@ nav .fab em{font-style:normal;margin-top:4px;color:var(--ink-2)}
 .blob span{position:absolute;width:84px;height:84px;border-radius:50%}
 .blob span:first-child{background:var(--joyce);left:0;top:18px}
 .blob span:last-child{background:var(--sun);right:0;top:18px;mix-blend-mode:multiply}
+.onb-f{display:flex;flex-direction:column;gap:6px;font-size:13px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;opacity:.95}
+.onb-f input,.onb-link{min-height:50px;border-radius:14px;border:0;padding:12px 14px;font-size:17px;color:#111114;background:#fff;text-transform:none;letter-spacing:0;font-weight:500;width:100%}
+.onb-link{font-size:14px;resize:none}
+.onb-err{margin:0;background:rgba(0,0,0,.18);border-radius:12px;padding:10px 12px;font-size:15px;font-weight:600}
+.link-box{background:rgba(255,255,255,.14);border-radius:14px;padding:12px 14px;font-size:13px;word-break:break-all;user-select:all;-webkit-user-select:all}
 .proto{font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;opacity:.75}
 
 @keyframes rise{from{transform:translateY(100%)}to{transform:none}}
@@ -474,7 +479,7 @@ const SIZES=[3,7,14];
 const JOKES=[["What do you call two birds in love?","Tweethearts."],["Why did the banana go out with the prune?","It couldn't find a date."],["What did the stamp say to the envelope?","I'm stuck on you."],["What did one plate say to the other?","Dinner's on me."],["Why don't eggs tell jokes?","They'd crack each other up."],["What do you call a fake noodle?","An impasta."],["Why did the scarecrow win an award?","He was outstanding in his field."],["What did the ocean say to the beach?","Nothing, it just waved."],["What do you call a bear with no teeth?","A gummy bear."],["Why are frogs so happy?","They eat whatever bugs them."],["What did the coffee report to the police?","A mugging."],["Why did the cookie go to the doctor?","It felt crummy."],["What do you call a sleeping dinosaur?","A dino-snore."],["What did one volcano say to the other?","I lava you."],["How do you organise a space party?","You planet."],["Why did the tomato blush?","It saw the salad dressing."],["What do you call cheese that isn't yours?","Nacho cheese."],["Why don't skeletons fight each other?","They don't have the guts."],["Why was the maths book sad?","It had too many problems."],["What do you call a pile of kittens?","A meowtain."],["What did the cat say to its crush?","You're purr-fect for me."],["Why did the bicycle fall over?","It was two-tired."],["What do you call a dog that does magic?","A labracadabrador."],["What did the left eye say to the right eye?","Between you and me, something smells."],["Why did the golfer bring two pairs of trousers?","In case he got a hole in one."],["What do you call a sad strawberry?","A blueberry."],["Why can't you trust atoms?","They make up everything."],["What did the avocado say to its partner?","We make a great pair. Guac on."]];
 const JOKE_RX=['😂','🙄','💖'];
 const WD=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-const KEY='littlewins-proto-v2';
+const KEY='littlewins-v1';
 
 /* ---------- dates ---------- */
 const pad=n=>String(n).padStart(2,'0');
@@ -490,88 +495,15 @@ const longDate=k=>fromKey(k).toLocaleDateString('en-GB',{weekday:'long',day:'num
 const shortDate=k=>fromKey(k).toLocaleDateString('en-GB',{day:'numeric',month:'short'});
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
-/* ---------- mock data ---------- */
-function rng(seed){return function(){seed|=0;seed=seed+0x6D2B79F5|0;let t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
-function doodle(){
-  try{
-    const c=document.createElement('canvas');c.width=600;c.height=330;const x=c.getContext('2d');
-    x.lineCap='round';x.lineJoin='round';
-    x.strokeStyle='#E0507A';x.lineWidth=14;x.beginPath();x.moveTo(250,280);
-    x.bezierCurveTo(90,180,120,50,210,78);x.bezierCurveTo(235,86,245,110,250,124);
-    x.bezierCurveTo(255,110,265,86,290,78);x.bezierCurveTo(380,50,410,180,250,280);x.stroke();
-    x.strokeStyle='#FFB547';x.lineWidth=8;x.beginPath();x.arc(500,90,34,0,Math.PI*2);x.stroke();
-    for(let i=0;i<8;i++){const a=i*Math.PI/4;x.beginPath();x.moveTo(500+Math.cos(a)*50,90+Math.sin(a)*50);x.lineTo(500+Math.cos(a)*68,90+Math.sin(a)*68);x.stroke()}
-    x.strokeStyle='#3E9B6B';x.lineWidth=7;
-    [[470,230],[520,230]].forEach(([cx,cy])=>{x.beginPath();x.arc(cx,cy,22,0,Math.PI*2);x.stroke()});
-    x.beginPath();x.arc(495,205,22,0,Math.PI*2);x.stroke();x.beginPath();x.moveTo(495,240);x.quadraticCurveTo(500,280,480,305);x.stroke();
-    x.strokeStyle='#2A8AA3';x.lineWidth=5;x.beginPath();x.moveTo(60,310);
-    for(let i=0;i<8;i++)x.quadraticCurveTo(80+i*40,290+(i%2?30:-10),100+i*40,310);x.stroke();
-    return c.toDataURL('image/png');
-  }catch(e){return''}
-}
-function seed(){
-  const today=T();const r=rng(20261019);let n=1;const id=p=>p+(n++);
-  const habits=[
-    {id:'h1',name:'Meditate',emoji:'🧘',owner:'j',type:'yes',freq:{kind:'daily'},vis:'shared'},
-    {id:'h2',name:'Drink water',emoji:'💧',owner:'j',type:'count',unit:'glasses',freq:{kind:'daily'},vis:'shared'},
-    {id:'h3',name:'Read 20 pages',emoji:'📚',owner:'j',type:'yes',freq:{kind:'weekly',n:4},vis:'shared'},
-    {id:'h4',name:'Japanese practice',emoji:'🇯🇵',owner:'j',type:'yes',freq:{kind:'daily'},vis:'private'},
-    {id:'h5',name:'Run',emoji:'🏃',owner:'a',type:'yes',freq:{kind:'weekly',n:3},vis:'shared'},
-    {id:'h6',name:'Guitar',emoji:'🎸',owner:'a',type:'yes',freq:{kind:'daily'},vis:'shared'},
-    {id:'h7',name:'Cook at home',emoji:'🥗',owner:'a',type:'yes',freq:{kind:'weekly',n:3},vis:'shared'},
-    {id:'h8',name:'Vitamins',emoji:'💊',owner:'a',type:'yes',freq:{kind:'daily'},vis:'private'},
-    {id:'h9',name:'Evening walk together',emoji:'🚶',owner:'both',type:'yes',freq:{kind:'daily'},vis:'shared'},
-    {id:'h10',name:'No phones at dinner',emoji:'📵',owner:'both',type:'yes',freq:{kind:'days',days:[1,2,3,4,5]},vis:'shared'},
-    {id:'h11',name:'Date night',emoji:'💞',owner:'both',type:'yes',freq:{kind:'weekly',n:1},vis:'shared'}
-  ];
-  const notesA=['Proud of you for sticking with it this week','Dinner is on me tonight 🍜','Thinking of you in that meeting. You have got this','Our walk was the best part of my day','Sleep well, see you in the morning ☁️','You looked so happy today'];
-  const notesJ=['Thanks for the coffee this morning ☕️','That run! Look at you go','Miss you already, can’t wait for Friday','You made me laugh so much today','Ramen this weekend?','Your guitar is sounding so good'];
-  const checkins=[],reactions=[],notes=[],moods={};
-  const t=()=>pad(7+Math.floor(r()*15))+':'+pad(Math.floor(r()*60));
-  const skip=new Set([4,9,13,17]);
-  for(let off=24;off>=1;off--){
-    if(skip.has(off))continue;
-    const d=addDays(today,-off);
-    habits.forEach(h=>{
-      const p=h.id==='h11'?(weekday(d)===6?.8:0):h.owner==='both'?.45:.58;
-      if(r()<p){
-        const by=h.owner==='both'?(r()<.5?'j':'a'):h.owner;
-        const c={id:id('c'),habitId:h.id,date:d,by,at:t()};
-        if(h.type==='count')c.count=3+Math.floor(r()*6);
-        checkins.push(c);
-        if(h.vis==='shared'){const other=by==='j'?'a':'j';if(r()<.6)reactions.push({id:id('r'),target:'c:'+c.id,by:other,s:STICKERS[Math.floor(r()*STICKERS.length)]})}
-      }
-    });
-    moods[d]={};['j','a'].forEach(u=>{if(r()<.8)moods[d][u]=MOODS[Math.floor(r()*MOODS.length)][0]});
-    if(r()<.35){const nt={id:id('n'),date:d,by:'a',text:notesA[Math.floor(r()*notesA.length)],at:t()};notes.push(nt);if(r()<.85)reactions.push({id:id('r'),target:'n:'+nt.id,by:'j',s:'💖'})}
-    if(r()<.35){const nt={id:id('n'),date:d,by:'j',text:notesJ[Math.floor(r()*notesJ.length)],at:t()};notes.push(nt);if(r()<.85)reactions.push({id:id('r'),target:'n:'+nt.id,by:'a',s:'🥰'})}
-  }
-  const force=(hid,off,by)=>{const d=addDays(today,-off);if(!checkins.some(c=>c.habitId===hid&&c.date===d))checkins.push({id:id('c'),habitId:hid,date:d,by,at:t()})};
-  for(let o=1;o<=5;o++)force('h9',o,o%2?'j':'a');
-  for(let o=1;o<=6;o++)force('h1',o,'j');
-  for(let o=1;o<=8;o++)force('h6',o,'a');
-  // one older doodle note
-  const d6=addDays(today,-6);notes.push({id:id('n'),date:d6,by:'j',text:'',drawing:doodle(),at:'21:40'});
-  // today
-  checkins.push({id:'c-t1',habitId:'h1',date:today,by:'j',at:'07:40'});
-  checkins.push({id:'c-t2',habitId:'h2',date:today,by:'j',at:'09:15',count:3});
-  checkins.push({id:'c-t3',habitId:'h5',date:today,by:'a',at:'07:12'});
-  checkins.push({id:'c-t4',habitId:'h8',date:today,by:'a',at:'08:00'});
-  reactions.push({id:'r-t1',target:'c:c-t1',by:'a',s:'🙌'});
-  moods[today]={a:'😕'};
-  moods[addDays(today,-1)]={j:'😕',a:'🙂'};moods[addDays(today,-3)]=Object.assign(moods[addDays(today,-3)]||{},{a:'😄'});
-  const moodNotes={};moodNotes[today]={a:'Big deadline at work, a bit stressed'};moodNotes[addDays(today,-1)]={j:'Nervous about my exam tomorrow'};moodNotes[addDays(today,-3)]={a:'Got the promotion!!'};
-  notes.push({id:'n-t1',date:today,by:'a',text:'Good luck with the presentation today! 🍀',drawing:doodle(),at:'07:20'});
-  const jokes=[{id:'j-y1',date:addDays(today,-1),by:'a',q:JOKES[0][0],a:JOKES[0][1],at:'12:30'},{id:'j-y2',date:addDays(today,-3),by:'j',q:JOKES[5][0],a:JOKES[5][1],at:'18:02'}];
-  reactions.push({id:'r-j1',target:'k:j-y1',by:'j',s:'😂'});
-  return {habits,checkins,reactions,notes,moods,moodNotes,jokes};
-}
-function fresh(){return Object.assign({v:2,names:{j:'Joyce',a:'Alex'},me:'j',muted:false,pulse:{},onboarded:true,seededOn:T()},seed())}
-function load(){try{const s=JSON.parse(localStorage.getItem(KEY));return s&&s.v===2?s:null}catch(e){return null}}
-function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+/* ---------- state ---------- */
+// Everything shared lives in Firebase (see sync.js). This copy is a fast local cache.
+function fresh(names){return{v:3,names:names||{j:'',a:''},me:'j',muted:false,habits:[],checkins:[],reactions:[],notes:[],moods:{},moodNotes:{},jokes:[]}}
+function load(){try{const s=JSON.parse(localStorage.getItem(KEY));return s&&s.v===3?s:null}catch(e){return null}}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}if(window.LWSync)LWSync.changed()}
 
-let S=load()||fresh();S.jokes=S.jokes||[];
-const U={jokeIdx:fromKey(T()).getDate()%28,revealed:{},tab:'today',day:T(),sheet:null,form:null,strokes:[],ink:INKS[1],size:1,noteText:'',book:{range:'year',from:addDays(T(),-30),to:T(),state:'idle'},onb:null};
+const PAIR=(()=>{try{return JSON.parse(localStorage.getItem('littlewins-pair'))}catch(e){return null}})();
+let S=load()||fresh();if(PAIR&&PAIR.me)S.me=PAIR.me;
+const U={jokeIdx:fromKey(T()).getDate()%28,revealed:{},tab:'today',day:T(),sheet:null,form:null,strokes:[],ink:INKS[1],size:1,noteText:'',book:{range:'year',from:addDays(T(),-30),to:T(),state:'idle'},onb:PAIR&&PAIR.me?null:{st:PAIR?'who':'welcome'}};
 
 /* ---------- model helpers ---------- */
 const P=()=>S.me==='j'?'a':'j';
@@ -670,10 +602,9 @@ function vToday(){
   const myMoodText=(S.moodNotes[d]||{})[me]||'',pMoodText=(S.moodNotes[d]||{})[p]||'';
   const myNote=S.notes.find(n=>n.date===d&&n.by===me);
   const pNote=S.notes.find(n=>n.date===d&&n.by===p);
-  const pulseDone=(S.pulse[d]||{})[me];
   const days=[T(),addDays(T(),-1),addDays(T(),-2)];
   let out=`<header class="top"><div><div class="eyebrow">${longDate(d)}</div><h1>${isToday?greet+', '+esc(nm(me)):dayLabel(d)}</h1></div>
-    <button class="pair" data-a="demo" aria-label="Pair and prototype settings">${av(me)}${av(p)}<small>DEMO</small></button></header>
+    <button class="pair" data-a="settings" aria-label="Settings">${av(me)}${av(p)}</button></header>
     <div class="days" role="group" aria-label="Day to log">${days.map(k=>`<button data-a="day" data-d="${k}" aria-pressed="${k===d}">${k===T()?'Today':k===addDays(T(),-1)?'Yesterday':WD[weekday(k)]+' '+fromKey(k).getDate()}</button>`).join('')}</div>`;
   if(!isToday)out+=`<p class="backfill">Forgot to log something? You can add it up to 2 days later.</p>`;
   // 1. Notes
@@ -701,7 +632,6 @@ function vToday(){
   // 5. Our goals, 6. My goals
   if(ours.length)out+=`<section class="sec"><div class="sec-h"><h2>Our goals</h2><span>one tick counts for both</span></div><div class="group">${ours.map(x=>habRow(x,d)).join('')}</div></section>`;
   out+=`<section class="sec"><div class="sec-h"><h2>My goals</h2><button class="muted" data-a="tab" data-tab="habits" style="font-weight:800">Edit</button></div>${mine.length?'<div class="group">'+mine.map(x=>habRow(x,d)).join('')+'</div>':`<div class="caught">Nothing planned for ${isToday?'today':'this day'}. Enjoy the breather.</div>`}</section>`;
-  if(isToday&&!pulseDone)out+=`<section class="pulse"><p>Opening the app today felt…</p><div class="opts"><button data-a="pulse" data-v="good">Good</button><button data-a="pulse" data-v="neutral">Neutral</button><button data-a="pulse" data-v="chore">Like a chore</button></div><small>Test-phase question. Only the two of you and the prototype see this.</small></section>`;
   return out;
 }
 function dayEvents(d,viewer){
@@ -765,7 +695,7 @@ function vBook(){
     <ul class="includes"><li><span>One page per day with both of your moods and the words you added</span></li><li><span>Every note and drawing, full size, with the stickers you sent back</span></li><li><span>Habits and check-ins stay out, so it reads like a diary of the two of you</span></li></ul>
   </section>
   ${sample?`<section class="sec"><div class="sec-h"><h2>Sample page</h2><span>${shortDate(sample)}</span></div>${pageHTML(sample,S.me,{book:true})}</section>`:''}
-  ${b.state==='idle'?`<button class="btn sun block" data-a="make">Create PDF year book</button>`:b.state==='making'?`<div class="ready"><span class="spin"></span><span>Putting your pages together…</span></div>`:`<div class="ready"><span><b>Your year book is ready.</b><br><span class="muted">In the real app the PDF downloads here. This prototype shows the preview only.</span></span></div><button class="btn ghost block" data-a="makeagain">Make another</button>`}`;
+  ${b.state==='idle'?`<button class="btn sun block" data-a="make">Create PDF year book</button>`:b.state==='making'?`<div class="ready"><span class="spin"></span><span>Putting your pages together…</span></div>`:`<div class="ready"><span><b>Your year book is ready.</b><br><span class="muted">PDF download is coming in a later version. The preview above shows how your pages will look.</span></span></div><button class="btn ghost block" data-a="makeagain">Make another</button>`}`;
 }
 function vNav(){
   const t=U.tab,b=(id,l,ic)=>`<button data-a="tab" data-tab="${id}" ${t===id?'aria-current="page"':''}>${ic}<span>${l}</span></button>`;
@@ -807,25 +737,31 @@ function sheetHTML(){
     <button class="choice" data-a="reveal" data-v="now"><b>From now on</b><span>Past check-ins stay private. ${esc(nm(p))} sees new ones from today.</span></button>
     <button class="btn ghost block" data-a="reveal" data-v="cancel">Keep it private</button>`}
   if(s.kind==='hide'){const h=hab(s.h);body=`<h2>Make ${esc(h.name)} private?</h2><p class="lede">${esc(nm(p))} won't see this habit or any of its check-ins any more, including on the timeline and in the year book.</p><button class="btn block" data-a="hide" data-v="yes">Make private</button><button class="btn ghost block" data-a="close">Keep it shared</button>`}
-  if(s.kind==='demo')body=`<h2>Prototype settings</h2><p class="lede">This is a test build. Data stays on this phone, so switch people to see both sides of the app.</p>
-    <div class="field"><span class="lbl">Viewing as</span><div class="seg"><button data-a="as" data-v="j" aria-pressed="${me==='j'}">${esc(nm('j'))}</button><button data-a="as" data-v="a" aria-pressed="${me==='a'}">${esc(nm('a'))}</button></div></div>
+  if(s.kind==='settings'){const st=window.LWSync?LWSync.status():'Connecting…';body=`<h2>Settings</h2>
     <div class="field"><span class="lbl">Names</span><div class="names2"><input type="text" id="nJ" value="${esc(nm('j'))}" maxlength="16" aria-label="First partner's name"><input type="text" id="nA" value="${esc(nm('a'))}" maxlength="16" aria-label="Second partner's name"></div></div>
-    <button class="btn sun block" data-a="simulate">Simulate ${esc(nm(p))} doing something</button>
-    <div class="row-between"><span><b>Partner notifications</b><br><span class="muted">Only when ${esc(nm(p))} checks in, reacts or sends a note</span></span><button class="switch" role="switch" aria-checked="${!S.muted}" data-a="mute" aria-label="Partner notifications"></button></div>
-    <div class="row-between"><span><b>Pair code</b><br><span class="muted">How ${esc(nm(p))} joined</span></span><span class="chip" style="font-size:14px">WINS-4821</span></div>
-    <button class="btn ghost block" data-a="onb">Replay first-time setup</button>
-    <button class="btn ghost block" data-a="reset">Reset demo data</button>`;
-  if(s.kind==='reset')body=`<h2>Reset demo data?</h2><p class="lede">Everything you've tapped in this prototype goes back to the sample data.</p><button class="btn block" data-a="reset2">Reset</button><button class="btn ghost block" data-a="close">Cancel</button>`;
+    <div class="row-between"><span><b>Partner alerts</b><br><span class="muted">A banner while the app is open when ${esc(nm(p))} checks in, reacts or sends a note</span></span><button class="switch" role="switch" aria-checked="${!S.muted}" data-a="mute" aria-label="Partner alerts"></button></div>
+    <div class="row-between"><span><b>Sync</b><br><span class="muted">Shared between your two phones</span></span><span class="chip" style="font-size:13px">${esc(st)}</span></div>
+    <div class="field"><span class="lbl">Invite link</span><p class="muted" style="margin:0">Send it to ${esc(nm(p))}, or use it to set up Little Wins on a new phone. Keep it between the two of you.</p><button class="btn ghost block" data-a="sharelink">Share invite link</button></div>`}
   return `<div class="scrim" data-a="scrim"><div class="sheet" role="dialog" aria-modal="true"><div class="grab"></div>${body}</div></div>`;
 }
 function onbHTML(){
-  const st=U.onb;if(st==null)return'';
-  if(st===0)return `<div class="onb"><span class="proto">Prototype · first-time setup</span><div style="display:flex;flex-direction:column;gap:18px"><div class="blob"><span></span><span></span></div><h1>A little space for the two of you.</h1><p>Work on habits alone or together, cheer each other on, and keep a year of small wins.</p></div><div style="display:flex;flex-direction:column;gap:10px"><button class="btn block" data-a="onbnext">Create our space</button><button class="btn ghost block" data-a="onbskip">I have an invite code</button></div></div>`;
-  if(st===1)return `<div class="onb"><span class="proto">Step 1 of 2</span><div style="display:flex;flex-direction:column;gap:16px"><h1>Invite ${esc(nm('a'))}</h1><p>Send this code or link. It only works for one person.</p><div class="code">WINS-4821</div><button class="btn ghost" data-a="copycode">Copy invite link</button></div><button class="btn block" data-a="onbnext">${esc(nm('a'))} joined (simulate)</button></div>`;
-  return `<div class="onb"><span class="proto">Step 2 of 2</span><div style="display:flex;flex-direction:column;gap:18px"><h1>You're paired 🎉</h1><p>Here's how it works:</p><ol class="steps"><li><b class="n">1</b><span>Check in on a habit, or just set your mood.</span></li><li><b class="n">2</b><span>${esc(nm('a'))} gets a gentle heads-up.</span></li><li><b class="n">3</b><span>One tap sends a sticker back. That's the whole loop.</span></li></ol><p style="font-size:14px">No streaks, no scores. Missed days simply don't show.</p></div><button class="btn block" data-a="onbskip">Go to Today</button></div>`;
+  const o=U.onb;if(!o)return'';const wrap=(tag,inner,foot)=>`<div class="onb"><span class="proto">${tag}</span><div style="display:flex;flex-direction:column;gap:16px">${inner}</div><div style="display:flex;flex-direction:column;gap:10px">${foot}</div></div>`;
+  const err=o.err?`<p class="onb-err" role="alert">${esc(o.err)}</p>`:'';
+  if(o.busy)return wrap('Little Wins',`<h1>${esc(o.busy)}</h1><div class="spin" style="border-color:rgba(255,255,255,.3);border-top-color:#fff"></div>`,'');
+  if(o.st==='welcome')return wrap('Welcome',`<div class="blob"><span></span><span></span></div><h1>A little space for the two of you.</h1><p>Work on habits alone or together, cheer each other on, and keep a year of small wins.</p>`,
+    `<button class="btn block" data-a="onbgo" data-v="create">Create our space</button><button class="btn ghost block" data-a="onbgo" data-v="join">I have an invite link</button>`);
+  if(o.st==='create')return wrap('Step 1 of 2',`<h1>Who's in this space?</h1><label class="onb-f">Your name<input type="text" id="oMe" maxlength="16" autocomplete="given-name" value="${esc(o.me||'')}"></label><label class="onb-f">Your person's name<input type="text" id="oYou" maxlength="16" value="${esc(o.you||'')}"></label>${err}`,
+    `<button class="btn block" data-a="oncreate">Create our space</button><button class="btn ghost block" data-a="onbgo" data-v="welcome">Back</button>`);
+  if(o.st==='invite')return wrap('Step 2 of 2',`<h1>Invite ${esc(nm('a'))}</h1><p>Send ${esc(nm('a'))} this link. They add Little Wins to their Home Screen, open it, tap <b>I have an invite link</b> and paste it.</p><div class="link-box">${esc(o.link)}</div><p style="font-size:14px">Keep it between the two of you. Anyone with the link can join your space.</p>`,
+    `<button class="btn block" data-a="sharelink">Share invite link</button><button class="btn ghost block" data-a="onbdone">Go to Today</button>`);
+  if(o.st==='install')return wrap('Invite',`<h1>Add Little Wins to your Home Screen first</h1><ol class="steps"><li><b class="n">1</b><span>Tap <b>Share</b>, then <b>Add to Home Screen</b>.</span></li><li><b class="n">2</b><span>Open Little Wins from your Home Screen.</span></li><li><b class="n">3</b><span>Tap <b>I have an invite link</b> and paste the link you were sent.</span></li></ol>`,
+    `<button class="btn block" data-a="copylink">Copy invite link</button><button class="btn ghost block" data-a="onbgo" data-v="join">Use it here in Safari instead</button>`);
+  if(o.st==='join')return wrap('Join',`<h1>Join your person</h1><p>Paste the invite link they sent you.</p><textarea id="oLink" class="onb-link" rows="3" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Invite link">${esc(o.link||'')}</textarea>${err}`,
+    `<button class="btn block" data-a="onjoin">Join</button><button class="btn ghost block" data-a="onbgo" data-v="welcome">Back</button>`);
+  if(o.st==='who')return wrap('Almost there',`<h1>Which one are you?</h1><p>This phone will post as the person you pick.</p>${err}`,
+    ['j','a'].map(u=>`<button class="btn block" data-a="onwho" data-v="${u}">I'm ${esc(nm(u)||'…')}</button>`).join(''));
+  return '';
 }
-
-/* ---------- render ---------- */
 const $main=document.getElementById('main'),$nav=document.getElementById('nav'),$sheet=document.getElementById('sheet');
 function render(){
   $main.innerHTML=U.tab==='today'?vToday():U.tab==='timeline'?vTimeline():U.tab==='habits'?vHabits():vBook();
@@ -858,17 +794,8 @@ function newCheckin(h,extra){const c=Object.assign({id:'c'+Date.now()+Math.floor
 function removeCheckin(c){S.checkins=S.checkins.filter(x=>x!==c);S.reactions=S.reactions.filter(r=>r.target!=='c:'+c.id)}
 function checkToast(h){const p=nm(P());toast(h.owner==='both'?'Done for both of you':h.vis==='private'?'Logged. Only you can see this.':`Nice! ${esc(p)} will see this.`)}
 function openForm(h){U.formErr='';U.form=h?{id:h.id,name:h.name,emoji:h.emoji,owner:h.owner==='both'?'both':'me',type:h.type,unit:h.unit||'',freq:JSON.parse(JSON.stringify(h.freq)),vis:h.vis}:{name:'',emoji:'🪴',owner:'me',type:'yes',unit:'',freq:{kind:'daily'},vis:'shared'};if(!U.form.freq.n)U.form.freq.n=3;if(!U.form.freq.days)U.form.freq.days=[1,3,5];U.sheet={kind:'habit'};renderSheet()}
+function copyText(t,msg){try{navigator.clipboard.writeText(t).then(()=>toast(msg),()=>toast('Copy failed. Press and hold to copy.'))}catch(e){toast('Copy failed')}}
 function cleanFreq(f){return f.kind==='daily'?{kind:'daily'}:f.kind==='weekly'?{kind:'weekly',n:f.n}:{kind:'days',days:f.days.slice()}}
-function simulate(){
-  const me=S.me,p=P(),d=T();U.day=d;
-  const cands=S.habits.filter(h=>h.owner===p&&h.vis==='shared'&&!h.archived&&!doneOn(h,d));
-  if(cands.length){const h=cands[0];const c={id:'c'+Date.now(),habitId:h.id,date:d,by:p,at:nowTime()};if(h.type==='count')c.count=4;S.checkins.push(c);U.sheet=null;U.tab='today';render();
-    setTimeout(()=>banner(h.emoji,`${esc(nm(p))} just checked in: ${esc(h.name)}`,'Tap to cheer them on'),500);return}
-  if(!S.jokes.some(j=>j.date===d&&j.by===p)){const [q,a]=JOKES[(U.jokeIdx+7)%JOKES.length];S.jokes.push({id:'j'+Date.now(),date:d,by:p,q,a,at:nowTime()});U.sheet=null;U.tab='today';render();setTimeout(()=>banner('😂',`${esc(nm(p))} sent you a joke`,esc(q)),500);return}
-  const mine=S.checkins.filter(c=>c.by===me&&c.date===d&&!reacted(p,'c:'+c.id));
-  if(mine.length){S.reactions.push({id:'r'+Date.now(),target:'c:'+mine[0].id,by:p,s:'🔥'});U.sheet=null;render();setTimeout(()=>banner('🔥',`${esc(nm(p))} sent 🔥 on ${esc(hab(mine[0].habitId).name)}`,'Your cheer squad of one'),500);return}
-  S.moods[d]=S.moods[d]||{};S.moods[d][p]='😄';U.sheet=null;render();setTimeout(()=>banner('😄',`${esc(nm(p))} is feeling great`,'Send a little cheer'),500);
-}
 const A={
   tab:el=>{U.tab=el.dataset.tab;U.sheet=null;if(U.tab!=='book')U.book.state=U.book.state==='making'?'idle':U.book.state;render();$main.scrollTop=0},
   day:el=>{U.day=el.dataset.d;render()},
@@ -888,7 +815,6 @@ const A={
   viewnote:el=>{U.sheet={kind:'viewnote',n:el.dataset.n};renderSheet()},
   mood:()=>{U.sheet={kind:'mood'};renderSheet()},
   setmood:el=>{const d=T();S.moods[d]=S.moods[d]||{};const same=S.moods[d][S.me]===el.dataset.m;S.moods[d][S.me]=el.dataset.m;U.sheet=null;if(!same)toast(`${esc(nm(P()))} can see you're feeling ${moodLabel(el.dataset.m).toLowerCase()}`);render()},
-  pulse:el=>{const d=T();S.pulse[d]=S.pulse[d]||{};S.pulse[d][S.me]=el.dataset.v;toast('Thanks. This helps shape the app.');render()},
   note:()=>{U.sheet={kind:'note'};renderSheet()},
   ink:el=>{U.ink=el.dataset.c;document.querySelectorAll('.sw').forEach(b=>b.setAttribute('aria-pressed',b.dataset.c===U.ink))},
   size:el=>{U.size=+el.dataset.i;document.querySelectorAll('.sz[data-i]').forEach(b=>b.setAttribute('aria-pressed',+b.dataset.i===U.size))},
@@ -898,17 +824,28 @@ const A={
     S.notes.push({id:'n'+Date.now(),date:T(),by:S.me,text,drawing,at:nowTime()});U.noteText='';U.strokes=[];U.sheet=null;toast(`Note sent to ${esc(nm(P()))}`);render()},
   close:()=>{U.sheet=null;renderSheet()},
   scrim:(el,e)=>{if(e.target===el){U.sheet=null;renderSheet()}},
-  demo:()=>{U.sheet={kind:'demo'};renderSheet()},
-  as:el=>{S.me=el.dataset.v;U.day=T();render()},
+  settings:()=>{U.sheet={kind:'settings'};renderSheet()},
   mute:()=>{S.muted=!S.muted;renderSheet()},
-  simulate:simulate,
   bannergo:()=>{document.getElementById('banner').innerHTML='';U.tab='today';U.day=T();U.sheet=null;render();$main.scrollTop=0},
-  reset:()=>{U.sheet={kind:'reset'};renderSheet()},
-  reset2:()=>{S=fresh();U.sheet=null;U.tab='today';U.day=T();render();toast('Demo data reset')},
-  onb:()=>{U.sheet=null;U.onb=0;renderSheet()},
-  onbnext:()=>{U.onb++;renderSheet()},
-  onbskip:()=>{U.onb=null;U.tab='today';render()},
-  copycode:()=>{const txt='Join me on Little Wins: code WINS-4821';try{navigator.clipboard.writeText(txt).then(()=>toast('Invite copied'),()=>toast('Code: WINS-4821'))}catch(e){toast('Code: WINS-4821')}},
+  onbgo:el=>{U.onb={st:el.dataset.v,link:U.onb&&U.onb.link};renderSheet()},
+  oncreate:async()=>{const me=document.getElementById('oMe').value.trim(),you=document.getElementById('oYou').value.trim();
+    if(!me||!you){U.onb={st:'create',me,you,err:'Add both names.'};renderSheet();return}
+    if(!window.LWSync){U.onb={st:'create',me,you,err:'Still connecting. Try again in a moment.'};renderSheet();return}
+    U.onb={st:'create',me,you,busy:'Creating your space…'};renderSheet();
+    try{const link=await LWSync.create({j:me,a:you});S=fresh({j:me,a:you});S.me='j';U.onb={st:'invite',link};render()}
+    catch(e){U.onb={st:'create',me,you,err:LWSync.explain(e)};renderSheet()}},
+  onjoin:async()=>{const link=document.getElementById('oLink').value.trim();
+    if(!link){U.onb={st:'join',err:'Paste the invite link first.'};renderSheet();return}
+    if(!window.LWSync){U.onb={st:'join',link,err:'Still connecting. Try again in a moment.'};renderSheet();return}
+    U.onb={st:'join',link,busy:'Joining…'};renderSheet();
+    try{const names=await LWSync.join(link);S=fresh(names);U.onb={st:'who'};renderSheet()}
+    catch(e){U.onb={st:'join',link,err:LWSync.explain(e)};renderSheet()}},
+  onwho:el=>{S.me=el.dataset.v;LWSync.setMe(S.me);U.onb=null;U.tab='today';U.day=T();render()},
+  onbdone:()=>{U.onb=null;U.tab='today';U.day=T();render()},
+  sharelink:()=>{const link=window.LWSync&&LWSync.inviteLink();if(!link){toast('Still connecting');return}
+    const text='Join me on Little Wins: '+link;
+    if(navigator.share)navigator.share({title:'Little Wins',text}).catch(()=>{});else copyText(link,'Invite link copied')},
+  copylink:()=>copyText(U.onb&&U.onb.link||'','Invite link copied'),
   new:()=>openForm(null),
   edit:el=>openForm(hab(el.dataset.h)),
   f:el=>{U.form[el.dataset.k]=el.dataset.v;renderSheet()},
@@ -945,9 +882,27 @@ document.addEventListener('change',e=>{if(e.target.id==='bFrom'){U.book.from=e.t
 const _td=timelineDays;
 timelineDays=function(viewer){if(viewer!=='both-preview')return _td(viewer);const set=new Set();S.checkins.forEach(c=>{if(canSee('j',c)&&canSee('a',c))set.add(c.date)});S.notes.forEach(n=>set.add(n.date));Object.keys(S.moods).forEach(d=>{if(Object.keys(S.moods[d]).length)set.add(d)});return[...set].sort().reverse()};
 
+/* ---------- live updates from the other phone ---------- */
+window.LWApp={
+  state:()=>S,
+  setNames(n){S.names=Object.assign({},S.names,n)},
+  // Re-render, unless the person is mid-way through typing or drawing.
+  refresh(){const a=document.activeElement;if(U.sheet||(U.onb&&U.onb.st!=='who')||(a&&$main.contains(a)&&/INPUT|TEXTAREA/.test(a.tagName))){U.stale=true;save();return}render()},
+  joinLink(link){if(!U.onb)return;const standalone=navigator.standalone||matchMedia('(display-mode: standalone)').matches;const ios=/iPhone|iPad|iPod/.test(navigator.userAgent);U.onb={st:ios&&!standalone?'install':'join',link};renderSheet()},
+  arrived(items){const me=S.me,p=P();
+    items.filter(x=>x.item.by===p).slice(-1).forEach(({col,item})=>{
+      if(col==='checkins'){const h=hab(item.habitId);if(h&&canSee(me,item))banner(h.emoji,`${esc(nm(p))} just checked in: ${esc(h.name)}`,'Tap to cheer them on')}
+      if(col==='notes')banner('💌',`${esc(nm(p))} sent you a note`,esc((item.text||'A little drawing').slice(0,60)))
+      if(col==='jokes')banner('😂',`${esc(nm(p))} sent you a joke`,esc(item.q))
+      if(col==='reactions')banner(item.s,`${esc(nm(p))} sent you ${item.s}`,'Your cheer squad of one')
+    })}
+};
+const _close=A.close;A.close=()=>{_close();if(U.stale){U.stale=false;render()}};
 render();
 })();
 </script>
+
+<script type="module" src="sync.js"></script>
 <script>
 if ('serviceWorker' in navigator) {
   addEventListener('load', () => navigator.serviceWorker.register('sw.js'));

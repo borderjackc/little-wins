@@ -187,7 +187,7 @@ window.LWSync = {
     if (/permission-denied/.test(code)) return "That invite link didn't work. Ask for a fresh copy.";
     if (/not-found/.test(code)) return "That space doesn't exist any more.";
     if (/unavailable|network|offline/i.test(code)) return "You're offline. Connect to the internet and try again.";
-    if (/admin-restricted|operation-not-allowed/.test(code)) return 'Anonymous sign-in is turned off in Firebase.';
+    if (/admin-restricted|operation-not-allowed|configuration-not-found/.test(code)) return 'Anonymous sign-in is not turned on in Firebase yet.';
     return 'Something went wrong: ' + code;
   },
   inviteLink() {

@@ -1,6 +1,8 @@
-/* Offline support: serve the app from cache, refresh it in the background. */
-const CACHE = 'little-wins-54679c88bd';
-const SHELL = ['./', 'index.html', 'manifest.webmanifest', 'icons/apple-touch-icon.png', 'icons/icon-192.png', 'icons/icon-512.png'];
+/* Offline support: always try the network first so updates arrive straight away,
+   and fall back to the cached copy when the phone is offline. */
+const CACHE = 'little-wins-2994a714d9';
+const SHELL = ["./", "index.html", "manifest.webmanifest", "sync.js", "firebase-config.js", "vendor/firebase-app.js", "vendor/firebase-auth.js", "vendor/firebase-firestore.js", "icons/apple-touch-icon.png", "icons/icon-192.png", "icons/icon-512.png"];
+const FONTS = /^https:\/\/fonts\.(googleapis|gstatic)\.com\//;
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(SHELL)).then(() => self.skipWaiting()));
@@ -13,13 +15,19 @@ self.addEventListener('activate', e => {
 });
 
 self.addEventListener('fetch', e => {
-  if (e.request.method !== 'GET') return;
+  const req = e.request;
+  if (req.method !== 'GET') return;
+  const sameOrigin = new URL(req.url).origin === location.origin;
+  if (!sameOrigin && !FONTS.test(req.url)) return; // leave Firebase traffic alone
   e.respondWith(caches.open(CACHE).then(async cache => {
-    const hit = await cache.match(e.request, { ignoreSearch: true });
-    const net = fetch(e.request).then(res => {
-      if (res && (res.ok || res.type === 'opaque')) cache.put(e.request, res.clone());
+    try {
+      const res = await fetch(req);
+      if (res && (res.ok || res.type === 'opaque')) cache.put(req, res.clone());
       return res;
-    }).catch(() => hit);
-    return hit || net;
+    } catch (err) {
+      const hit = await cache.match(req, { ignoreSearch: true });
+      if (hit) return hit;
+      throw err;
+    }
   }));
 });

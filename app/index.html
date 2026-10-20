@@ -65,7 +65,7 @@ main>*{flex:none}
 .scale button[aria-checked="true"]{background:var(--surface);box-shadow:var(--shadow)}
 .scale button[aria-checked="true"] span{filter:none;opacity:1;transform:scale(1.1)}
 .scale button[aria-checked="true"] small{color:var(--ink)}
-#moodText{min-height:46px;border-radius:14px;border:1.5px solid var(--line);background:var(--paper);padding:10px 12px;width:100%}
+#moodText{resize:none;display:block;min-height:46px;border-radius:14px;border:1.5px solid var(--line);background:var(--paper);padding:10px 12px;width:100%}
 .pmood{display:flex;gap:10px;align-items:flex-start;font-size:14px;border-top:1px solid var(--line);padding-top:12px}
 .pmood .av{flex:none}
 .streaks{display:grid;grid-template-columns:repeat(auto-fill,minmax(118px,1fr));gap:8px}
@@ -185,6 +185,7 @@ main>*{flex:none}
 
 /* Habits manager */
 .hlist{display:flex;flex-direction:column;gap:8px}
+.hlist .empty{margin:0;padding:14px 16px}
 .hrow{display:flex;align-items:center;gap:12px;background:var(--surface);border-radius:16px;padding:10px 12px;box-shadow:var(--shadow);text-align:left;width:100%;min-height:62px}
 .chip{font-size:11px;font-weight:800;padding:4px 8px;border-radius:999px;background:var(--surface-2);color:var(--ink-2);white-space:nowrap;display:inline-flex;gap:4px;align-items:center}
 .chip.priv{background:color-mix(in srgb,var(--ink) 10%,var(--surface))}
@@ -596,11 +597,12 @@ function vToday(){
   out+=`<section class="sec"><div class="sec-h"><h2>Cheer ${esc(nm(p))}</h2>${cheers.length?`<span>${cheers.length===1?'1 thing':cheers.length+' things'} to cheer</span>`:''}</div>`;
   out+=cheers.length?'<div class="group">'+cheers.map(cheerCard).join('')+'</div>':`<div class="caught">You're all caught up with ${esc(nm(p))}.</div>`;
   out+=`</section>`;
-  out+=jokeSection(d);
+  const jokeSent=S.jokes.some(j=>j.date===d&&j.by===me);
+  if(!jokeSent)out+=jokeSection(d);
   // 3. Mood
   if(isToday)out+=`<section class="sec"><div class="sec-h"><h2>How are you today?</h2><span>${esc(nm(p))} sees this</span></div>
     <div class="moodcard"><div class="scale" role="radiogroup" aria-label="Your mood">${MOODS.map(([e,l])=>`<button role="radio" aria-checked="${myMood===e}" data-a="setmood" data-m="${e}"><span>${e}</span><small>${l}</small></button>`).join('')}</div>
-    <input type="text" id="moodText" maxlength="80" value="${esc(myMoodText)}" placeholder="Add a few words, e.g. nervous about my exam" aria-label="What's on your mind">
+    <textarea id="moodText" maxlength="200" rows="2" placeholder="Add a few words, e.g. nervous about my exam" aria-label="What's on your mind">${esc(myMoodText)}</textarea>
     ${pMood?`<div class="pmood" style="--pc:${pcol(p)}">${av(p)}<span><b>${esc(nm(p))}</b> is feeling ${moodLabel(pMood).toLowerCase()} ${pMood}${pMoodText?`<br><span class="muted">“${esc(pMoodText)}”</span>`:''}</span></div>`:`<div class="pmood muted">${av(p)}<span>${esc(nm(p))} hasn't shared a mood yet today.</span></div>`}
     </div></section>`;
   // 4. Streaks
@@ -609,6 +611,7 @@ function vToday(){
   // 5. Our goals, 6. My goals
   if(ours.length)out+=`<section class="sec"><div class="sec-h"><h2>Our goals</h2><span>one tick counts for both</span></div><div class="group">${ours.map(x=>habRow(x,d)).join('')}</div></section>`;
   out+=`<section class="sec"><div class="sec-h"><h2>My goals</h2><button class="muted" data-a="tab" data-tab="habits" style="font-weight:800">Edit</button></div>${mine.length?'<div class="group">'+mine.map(x=>habRow(x,d)).join('')+'</div>':`<div class="caught">Nothing planned for ${isToday?'today':'this day'}. Enjoy the breather.</div>`}</section>`;
+  if(jokeSent)out+=jokeSection(d);
   return out;
 }
 function dayEvents(d,viewer){
@@ -652,9 +655,9 @@ function vHabits(){
   const ours=live.filter(h=>h.owner==='both'),mine=live.filter(h=>h.owner===me),theirs=live.filter(h=>h.owner===p&&h.vis==='shared');
   const arch=S.habits.filter(h=>h.archived&&(h.owner===me||h.owner==='both'));
   return `<header class="top"><div><div class="eyebrow">What you're working on</div><h1>Habits</h1></div><button class="btn sun" data-a="new">+ New</button></header>
-  <section class="sec"><div class="sec-h"><h2>Ours</h2><span>either of you can tick these</span></div><div class="hlist group">${ours.map(h=>hrow(h,true)).join('')||'<p class="muted">No joint habits yet.</p>'}</div></section>
+  <section class="sec"><div class="sec-h"><h2>Ours</h2><span>either of you can tick these</span></div><div class="hlist group">${ours.map(h=>hrow(h,true)).join('')||'<p class="muted empty">No joint habits yet.</p>'}</div></section>
   <section class="sec"><div class="sec-h"><h2>Mine</h2><span>private ones stay hidden from ${esc(nm(p))}</span></div><div class="hlist group">${mine.map(h=>hrow(h,true)).join('')}</div></section>
-  <section class="sec"><div class="sec-h"><h2>${esc(nm(p))}'s</h2><span>shared with you</span></div><div class="hlist group">${theirs.map(h=>hrow(h,false)).join('')||`<p class="muted">${esc(nm(p))} hasn't shared any habits yet.</p>`}</div></section>
+  <section class="sec"><div class="sec-h"><h2>${esc(nm(p))}'s</h2><span>shared with you</span></div><div class="hlist group">${theirs.map(h=>hrow(h,false)).join('')||`<p class="muted empty">${esc(nm(p))} hasn't shared any habits yet.</p>`}</div></section>
   ${arch.length?`<section class="sec"><div class="sec-h"><h2>Archived</h2><span>history stays on the timeline</span></div><div class="hlist group">${arch.map(h=>`<div class="hrow"><span class="hemo" style="--pc:${pcol(h.owner)}">${h.emoji}</span><span class="hmeta"><span class="hname">${esc(h.name)}</span></span><button class="btn ghost" data-a="restore" data-h="${h.id}">Restore</button></div>`).join('')}</div></section>`:''}`;
 }
 function vBook(){

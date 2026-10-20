@@ -1,6 +1,6 @@
 /* Offline support: always try the network first so updates arrive straight away,
    and fall back to the cached copy when the phone is offline. */
-const CACHE = 'little-wins-a208c1794e';
+const CACHE = 'little-wins-3335a3c24a';
 const SHELL = ["./", "index.html", "manifest.webmanifest", "sync.js", "firebase-config.js", "vendor/firebase-app.js", "vendor/firebase-auth.js", "vendor/firebase-firestore.js", "icons/apple-touch-icon.png", "icons/icon-192.png", "icons/icon-512.png"];
 const FONTS = /^https:\/\/fonts\.(googleapis|gstatic)\.com\//;
 

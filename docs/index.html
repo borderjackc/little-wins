@@ -450,10 +450,24 @@ nav button[aria-current="page"]{color:var(--us)}
 .ev i{color:var(--ink-2)}
 </style>
 
+<script>
+// In a Home Screen app iOS can report a viewport shorter than the screen (it still
+// leaves room for Safari's toolbar), which leaves an empty strip under the tab bar.
+// The app fills the whole screen there, so size it to the screen.
+(function () {
+  var standalone = navigator.standalone || matchMedia('(display-mode: standalone)').matches;
+  if (!standalone) return;
+  function fit() {
+    var h = matchMedia('(orientation: portrait)').matches ? Math.max(screen.width, screen.height) : Math.min(screen.width, screen.height);
+    document.documentElement.style.setProperty('--app-h', Math.max(h, innerHeight) + 'px');
+  }
+  fit(); addEventListener('resize', fit); addEventListener('orientationchange', fit);
+})();
+</script>
 <style>
 html,body{margin:0;overscroll-behavior:none}
 /* Pin the page to the whole screen: in a Home Screen app, height:100% can stop short of the bottom edge. */
-body{position:fixed;inset:0;overflow:hidden}
+body{position:fixed;top:0;left:0;right:0;height:var(--app-h,100%);overflow:hidden}
 .app{height:100%;padding-top:env(safe-area-inset-top,0px)}
 nav{padding-bottom:max(2px,calc(env(safe-area-inset-bottom,0px) - 22px))}
 .sheet{padding-bottom:calc(24px + env(safe-area-inset-bottom,0px))}

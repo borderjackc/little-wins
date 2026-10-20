@@ -37,8 +37,10 @@ HEAD = """<!doctype html>
 # Full-screen on iPhone: keep content clear of the notch, status bar and home indicator.
 SAFE_AREA = """<style>
 html,body{margin:0;overscroll-behavior:none}
-.app{padding-top:env(safe-area-inset-top,0px)}
-nav{padding-bottom:max(6px,env(safe-area-inset-bottom,0px))}
+/* Pin the page to the whole screen: in a Home Screen app, height:100% can stop short of the bottom edge. */
+body{position:fixed;inset:0;overflow:hidden}
+.app{height:100%;padding-top:env(safe-area-inset-top,0px)}
+nav{padding-bottom:max(4px,calc(env(safe-area-inset-bottom,0px) - 12px))}
 .sheet{padding-bottom:calc(24px + env(safe-area-inset-bottom,0px))}
 .onb{padding-top:calc(28px + env(safe-area-inset-top,0px));padding-bottom:calc(28px + env(safe-area-inset-bottom,0px))}
 #toast{bottom:calc(86px + env(safe-area-inset-bottom,0px))}
